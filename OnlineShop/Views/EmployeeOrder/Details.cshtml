@@ -1,0 +1,149 @@
+@model OnlineShop.Data.Order
+
+@{
+    ViewData["Title"] = $"Order Details - {Model.OrderId}";
+}
+
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Order Details</h2>
+        <a href="@Url.Action("Index")" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Orders
+        </a>
+    </div>
+
+    <!-- Order Summary Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Order #@Model.OrderId</h5>
+            <span class="badge bg-@(Model.Status switch {
+                "Pending" => "warning",
+                "Processing" => "info",
+                "Completed" => "success",
+                "Cancelled" => "danger",
+                _ => "secondary"
+            })">@Model.Status</span>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-muted">Customer Information</h6>
+                    <p><strong>Email:</strong> @Model.User.Email</p>
+                    <p><strong>Name:</strong> @Model.User.UserName</p>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-muted">Order Information</h6>
+                    <p><strong>Order Date:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Total Amount:</strong> @Model.TotalAmount.ToString("C")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Items Table -->
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Order Items</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Unit Price</th>
+                            <th>Quantity</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderDetails)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">@item.ProductName</h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@item.UnitPrice.ToString("C")</td>
+                                <td>@item.Quantity</td>
+                                <td class="text-end">@((item.UnitPrice * item.Quantity).ToString("C"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                            <td class="text-end"><strong>@Model.TotalAmount.ToString("C")</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Status Update -->
+    <div class="card mt-4">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">Update Order Status</h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="UpdateStatus" method="post" class="d-flex flex-column gap-2">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="returnUrl" value="@Url.Action("Details", new { id = Model.Id })" />
+                
+                <!-- Add cancellation reason input -->
+                <div class="mb-3" id="cancellationReasonDiv" style="display: none;">
+                    <label class="form-label">Cancellation Reason</label>
+                    <textarea class="form-control" name="cancellationReason" rows="3" 
+                        placeholder="Please provide a reason for cancellation"></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" name="status" value="Processing" 
+                            class="btn btn-info" @(Model.Status == "Processing" ? "disabled" : "")>
+                        Mark Processing
+                    </button>
+                    <button type="submit" name="status" value="Shipping"
+                            class="btn btn-primary" @(Model.Status == "Shipping" ? "disabled" : "")>
+                        Mark Shipping
+                    </button>
+                    <button type="submit" name="status" value="Completed" 
+                            class="btn btn-success" @(Model.Status == "Completed" ? "disabled" : "")>
+                        Mark Completed
+                    </button>
+                    <button type="submit" id="cancelButton" name="status" value="Cancelled" 
+                            class="btn btn-danger" @(Model.Status == "Cancelled" ? "disabled" : "")>
+                        Mark Cancelled
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.CancellationReason))
+    {
+        <div class="card mt-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Cancellation Reason</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">@Model.CancellationReason</p>
+            </div>
+        </div>
+    }
+
+    @section Scripts {
+        <script>
+            document.getElementById('cancelButton').addEventListener('click', function(e) {
+                e.preventDefault();
+                const reasonDiv = document.getElementById('cancellationReasonDiv');
+                reasonDiv.style.display = 'block';
+                reasonDiv.scrollIntoView({ behavior: 'smooth' });
+            });
+        </script>
+    }
+</div>
+

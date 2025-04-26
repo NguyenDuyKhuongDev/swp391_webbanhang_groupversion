@@ -1,0 +1,320 @@
+﻿@model OnlineShop.ViewModel.BlogVM
+
+@{
+    ViewData["Title"] = "Tạo bài viết mới";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mt-4">
+            <i class="fas fa-plus-circle text-primary me-2"></i>@ViewData["Title"]
+        </h1>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-file-signature text-secondary me-2"></i>Thông tin bài viết
+            </h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="row g-3" id="create-form">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="col-md-8">
+                    <div class="form-group mb-3">
+                        <label asp-for="Title" class="form-label fw-bold">
+                            <i class="fas fa-heading me-2 text-muted"></i>Tiêu đề bài viết
+                        </label>
+                        <input asp-for="Title" class="form-control" placeholder="Nhập tiêu đề hấp dẫn" />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Slug" class="form-label fw-bold">
+                            <i class="fas fa-link me-2 text-muted"></i>Đường dẫn (URL)
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">/</span>
+                            <input asp-for="Slug" class="form-control" placeholder="duong-dan-bai-viet" />
+                        </div>
+                        <span asp-validation-for="Slug" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Summary" class="form-label fw-bold">
+                            <i class="fas fa-align-left me-2 text-muted"></i>Tóm tắt
+                        </label>
+                        <textarea asp-for="Summary" class="form-control" rows="3" placeholder="Mô tả ngắn về bài viết"></textarea>
+                        <span asp-validation-for="Summary" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="Content" class="form-label fw-bold">
+                            <i class="fas fa-file-alt me-2 text-muted"></i>Nội dung
+                        </label>
+                        <textarea asp-for="Content" class="form-control" id="Content"></textarea>
+                        <span asp-validation-for="Content" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                   
+
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-cog me-2"></i>Cài đặt
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label asp-for="CategoryId" class="form-label fw-bold">
+                                    <i class="fas fa-tag me-2 text-muted"></i>Danh mục
+                                </label>
+                                <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.CategoryId">
+                                    <option value="">-- Chọn danh mục --</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="ThumbnailId" class="form-label fw-bold">
+                                    <i class="fas fa-image me-2 text-muted"></i>Ảnh đại diện
+                                </label>
+                                <select asp-for="ThumbnailId" class="form-select" asp-items="ViewBag.ThumbnailId">
+                                    <option value="">-- Chọn danh mục --</option>
+                                </select>
+                                <span asp-validation-for="ThumbnailId" class="text-danger small"></span>
+                            </div>
+                            <!-- chọn tag cho block-->
+                            <div class="form-group mb-3">
+                                <label class="form-label fw-bold">
+                                    <i class="fas fa-tags me-2 text-muted"></i>Tags
+                                </label>
+                                <div class="tag-container d-flex flex-wrap gap-2 p-2">
+                                    @foreach (var tag in ViewBag.ListTag as SelectList)
+                                    {
+                                        <div class="tag-item position-relative">
+                                            <input class="tag-checkbox position-absolute" type="checkbox"
+                                                   id="tag-@tag.Value" value="@tag.Value" name="SelectedTags">
+                                            <label class="tag-label btn btn-sm btn-outline-secondary rounded-pill d-flex align-items-center"
+                                                   for="tag-@tag.Value">
+                                                <i class="fas fa-tag me-1"></i>
+                                                <span>@tag.Text</span>
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                           @*  <div class="form-group mb-3">
+                                <label asp-for="PublishedDate" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-alt me-2 text-muted"></i>Ngày đăng
+                                </label>
+                                <input asp-for="PublishedDate" type="datetime-local" class="form-control" />
+                                <span asp-validation-for="PublishedDate" class="text-danger small"></span>
+                            </div> *@
+                            <div class="form-check form-switch mb-3">
+                                <input asp-for="IsPublished" class="form-check-input" type="checkbox" role="switch" />
+                                <label asp-for="IsPublished" class="form-check-label fw-bold">
+                                    <i class="fas fa-bullhorn me-2 text-muted"></i>Xuất bản
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-search me-2"></i>SEO
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label asp-for="MetaTitle" class="form-label fw-bold">
+                                    <i class="fas fa-tag me-2 text-muted"></i>Meta Title
+                                </label>
+                                <input asp-for="MetaTitle" class="form-control" placeholder="Tiêu đề SEO" />
+                                <span asp-validation-for="MetaTitle" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label asp-for="MetaDescription" class="form-label fw-bold">
+                                    <i class="fas fa-align-left me-2 text-muted"></i>Meta Description
+                                </label>
+                                <textarea asp-for="MetaDescription" class="form-control" rows="3" placeholder="Mô tả SEO"></textarea>
+                                <span asp-validation-for="MetaDescription" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 mt-4">
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="fas fa-save me-2"></i>Tạo bài viết
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Hủy bỏ
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.1);
+            border-radius: 0.35rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 0.25rem;
+            padding: 0.375rem 0.75rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .ck-editor__editable {
+            min-height: 400px;
+            border-radius: 0 0 0.35rem 0.35rem !important;
+            border: 1px solid #dee2e6 !important;
+        }
+
+        .ck.ck-editor__top {
+            border-radius: 0.35rem 0.35rem 0 0 !important;
+            border: 1px solid #dee2e6 !important;
+            border-bottom: none !important;
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+        }
+
+        .tag-container {
+            background-color: #f8f9fa;
+            border-radius: 0.375rem;
+        }
+
+        .tag-item {
+            cursor: pointer;
+        }
+
+        .tag-checkbox {
+            opacity: 0;
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+            .tag-checkbox:checked + .tag-label {
+                background-color: #0d6efd;
+                color: white;
+                border-color: #0d6efd;
+            }
+
+                .tag-checkbox:checked + .tag-label i {
+                    color: white;
+                }
+
+        .tag-label {
+            transition: all 0.2s ease;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+            .tag-label:hover {
+                background-color: #e9ecef;
+            }
+    </style>
+
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+    }
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
+    <script>
+        ClassicEditor.create(document.querySelector('#Content'), {
+            toolbar: {
+                items: [
+                    'heading', '|',
+                    'bold', 'italic', 'underline', 'strikethrough', '|',
+                    'link', 'blockQuote', 'codeBlock', '|',
+                    'numberedList', 'bulletedList', 'todoList', '|',
+                    'insertTable', 'imageUpload', 'mediaEmbed', '|',
+                    'undo', 'redo'
+                ]
+            },
+            mediaEmbed: {
+                previewsInData: true
+            },
+            image: {
+                toolbar: [
+                    'imageTextAlternative', 'imageStyle:full', 'imageStyle:side'
+                ]
+            },
+            language: 'vi'
+        }).catch(error => {
+            console.error(error);
+        });
+
+        // Tự động tạo slug từ title
+        document.getElementById('Title').addEventListener('input', function () {
+            const title = this.value;
+            const slugInput = document.getElementById('Slug');
+
+            if (slugInput.value === '') {
+                const slug = title.toLowerCase()
+                    .replace(/ /g, '-')
+                    .replace(/[^\w-]+/g, '');
+                slugInput.value = slug;
+            }
+        });
+    </script>
+
+    <script>
+        document.querySelectorAll('.tag-label').forEach(label => {
+            label.addEventListener('click', function () {
+                const checkbox = document.getElementById(this.htmlFor);
+                checkbox.checked = !checkbox.checked;
+                this.classList.toggle('active', checkbox.checked);
+            });
+
+    </script>
+    <script>
+        document.getElementById('createForm').addEventListener('submit', function (e) {
+            // Lấy các tag đã chọn
+            const selectedTags = Array.from(document.querySelectorAll('.tag-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+
+            // Tạo hidden input để gửi dữ liệu
+            selectedTags.forEach(tagId => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'SelectedTags';
+                input.value = tagId;
+                this.appendChild(input);
+            });
+        });
+    </script>
+
+
+
+}

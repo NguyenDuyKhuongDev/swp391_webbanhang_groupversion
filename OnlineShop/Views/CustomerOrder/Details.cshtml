@@ -1,0 +1,222 @@
+@model OnlineShop.Data.Order
+
+@{
+    ViewData["Title"] = $"Order Details - {Model.OrderId}";
+}
+
+<div class="container my-4">
+    <!-- Add this button next to the "Back to My Orders" button -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Order Details</h2>
+        <div>
+            <a href="@Url.Action("Index")" class="btn btn-secondary  me-2">
+                <i class="bi bi-arrow-left"></i> Back to My Orders
+            </a>
+            <button onclick="printOrder()" class="btn btn-info">
+                <i class="bi bi-printer"></i> Print Order
+            </button>
+          
+        </div>
+    </div>
+
+
+    <!-- Order Summary Card -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Order #@Model.OrderId</h5>
+                <div>
+                    <span class="badge bg-@(Model.Status switch {
+                        "Pending" => "warning",
+                        "Processing" => "info",
+                        "Completed" => "success",
+                        "Cancelled" => "danger",
+                        _ => "secondary"
+                    })">@Model.Status</span>
+                    
+                    @if (Model.Status == "Pending" || Model.Status == "Processing")
+                    {
+                        <button class="btn btn-danger btn-sm ms-2" onclick="showCancelModal()">
+                            <i class="bi bi-x-circle"></i> Cancel Order
+                        </button>
+                    }
+                    @if (Model.Status == "Completed" || Model.Status == "Cancelled")
+                    {
+                        <a href="@Url.Action("Reorder", new { id = Model.Id })" class="btn btn-success btn-sm ms-2">
+                            <i class="bi bi-arrow-repeat"></i> Re-order
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6 class="text-muted">Order Information</h6>
+                    <p><strong>Order Date:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+                    <p><strong>Total Amount:</strong> @Model.TotalAmount.ToString("C")</p>
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-muted">Shipping Information</h6>
+                    <p><strong>Name:</strong> @Model.User.UserName</p>
+                    <p><strong>Email:</strong> @Model.User.Email</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Items -->
+    <div class="card">
+        <div class="card-header bg-dark text-white">
+            <h5 class="mb-0">Order Items</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Unit Price</th>
+                            <th>Quantity</th>
+                            <th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderDetails)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                       
+                                        <div>
+                                            <h6 class="mb-0">@item.ProductName</h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@item.UnitPrice.ToString("C")</td>
+                                <td>@item.Quantity</td>
+                                <td class="text-end">@((item.UnitPrice * item.Quantity).ToString("C"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                            <td class="text-end"><strong>@Model.TotalAmount.ToString("C")</strong></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Status == "Cancelled" && !string.IsNullOrEmpty(Model.CancellationReason))
+    {
+        <div class="card mt-4">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Cancellation Reason</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">@Model.CancellationReason</p>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Add Cancel Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancel Order</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="CancelOrder" method="post">
+                <input type="hidden" name="id" value="@Model.Id" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Please provide a reason for cancellation</label>
+                        <textarea class="form-control" name="cancellationReason" 
+                                rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-danger">Cancel Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+
+        function printOrder() {
+            // Create print-specific styling
+            var printContent = `
+                                    <style>
+                                        @@media print {
+                                            body { font-family: Arial, sans-serif; }
+                                            .no-print { display: none; }
+                                            .page-break { page-break-after: always; }
+                                            table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+                                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                                            th { background-color: #f4f4f4; }
+                                            .text-end { text-align: right; }
+                                            .order-header { border-bottom: 2px solid #333; margin-bottom: 20px; }
+                                            .order-info { margin-bottom: 20px; }
+                                            .company-header { text-align: center; margin-bottom: 30px; }
+                                        }
+                                    </style>
+                                    <div class="company-header">
+                                        <h2>Online Shop</h2>
+                                        <p>Order Invoice</p>
+                                    </div>
+                                    <div class="order-header">
+                                        <h3>Order #@Model.OrderId</h3>
+                                        <p>Date: ${new Date('@Model.OrderDate').toLocaleDateString()}</p>
+                                        <p>Status: @Model.Status</p>
+                                    </div>
+                                    <div class="order-info">
+                                        <div style="float: left; width: 50%;">
+                                            <h4>Customer Information</h4>
+                                            <p>Name: @Model.User.UserName</p>
+                                                    <p>Email: @Model.User.Email</p>
+                                        </div>
+                                    </div>`;
+
+            // Create a new window for printing
+            var printWindow = window.open('', '_blank');
+            printWindow.document.write(printContent);
+
+            // Copy the order items table
+            var orderTable = document.querySelector('.table').cloneNode(true);
+            printWindow.document.write(orderTable.outerHTML);
+
+            // Add total amount
+            printWindow.document.write(`
+                                    <div style="margin-top: 20px; text-align: right;">
+                                        <h4>Total Amount: ${@Model.TotalAmount.ToString()}</h4>
+                                    </div>
+                                    <div style="margin-top: 40px; text-align: center;">
+                                        <p>Thank you for shopping with us!</p>
+                                    </div>
+                                `);
+
+            printWindow.document.close();
+
+            // Wait for content to load then print
+            printWindow.onload = function () {
+                printWindow.print();
+                printWindow.close();
+            };
+        }
+        function showCancelModal() {
+            var modal = new bootstrap.Modal(document.getElementById('cancelModal'));
+            modal.show();
+        }
+    </script>
+
+}
+

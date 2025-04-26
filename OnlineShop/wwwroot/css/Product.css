@@ -1,0 +1,114 @@
+﻿
+
+/* Tạo kiểu cho bảng sản phẩm */
+.product-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .product-table td, .product-table th {
+        vertical-align: middle; /* Căn giữa theo chiều dọc */
+    }
+
+    /* Loại bỏ border nhưng giữ khoảng cách giữa các hàng */
+    .product-table tbody tr {
+        border-bottom: 1px solid #ddd;
+        transition: background 0.3s ease-in-out;
+    }
+
+        .product-table tbody tr:hover {
+            background-color: #d3d3d3; /* Màu xám đậm hơn khi hover */
+        }
+
+/* Bo góc và giới hạn kích thước ảnh */
+.product-img-container {
+    width: 60px;
+    height: 60px;
+    overflow: hidden;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+/* Cột mô tả: Giới hạn chiều rộng và ẩn chữ dài */
+.description {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Phân trang */
+.page-item.active .page-link {
+    background-color: #7e7e7e; /* Màu xám cho active */
+    color: #fff;
+    border-color: #b0b0b0;
+}
+
+/* Thẻ <a> trong bảng sản phẩm */
+.product-table a {
+    text-decoration: none; /* Bỏ gạch chân */
+    color: #007bff; /* Màu xanh nhạt */
+    transition: color 0.3s ease, background-color 0.3s ease;
+}
+
+    /* Khi hover vào <a> */
+    .product-table a:hover {
+        color: #0056b3; /* Màu xanh đậm khi hover */
+        background-color: #e6e6e6; /* Màu nền nhẹ khi hover */
+        border-radius: 5px; /* Bo góc khi hover */
+    }
+
+.proNameCss {
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notification {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50; /* Màu xanh cho thông báo thành công */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+    .notification.error {
+        background-color: #f44336; /* Màu đỏ cho thông báo lỗi */
+    }
+
+    .notification.success {
+        background-color: #4CAF50; /* Màu xanh cho thông báo thành công */
+    }
+
+/* Trạng thái */
+.status-active {
+    color: #28a745; /* Màu xanh lá cho trạng thái "Hoạt động" */
+    font-weight: bold;
+}
+
+.status-inactive {
+    color: #dc3545; /* Màu đỏ cho trạng thái "Không hoạt động" */
+    font-weight: bold;
+}
+
+/* Form tìm kiếm và bộ lọc */
+.form-control {
+    border-radius: 5px;
+    font-size: 14px;
+    padding: 8px;
+}

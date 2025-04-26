@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Email Confirmed";
+}
+
+<div class="container text-center mt-5">
+    <h1>@ViewData["Title"]</h1>
+    <div class="alert alert-success mt-4">
+        <h4>Thank you for confirming your email!</h4>
+        <p>
+            Your account has been activated successfully. You can now log in to your account.
+        </p>
+    </div>
+    <a class="btn btn-primary mt-3" asp-controller="Auth" asp-action="Login">Log In</a>
+</div>

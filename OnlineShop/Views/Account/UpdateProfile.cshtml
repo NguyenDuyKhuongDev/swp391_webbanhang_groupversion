@@ -1,0 +1,159 @@
+﻿@model OnlineShop.Models.UserProfileViewModel
+
+<div class="parent">
+    <!-- Sidebar -->
+    <div class="div5">
+        <div class="user-profile-summary">
+            <div class="user-name">@Model?.Email</div>
+            <div class="last-login">Login at: @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</div>
+        </div>
+
+        <h3 class="menu-title">Personal Information</h3>
+        <div class="sidebar-menu">
+            <a asp-action="Index" class="menu-item">Personal Information</a>
+            <div class="menu-item active">Update Profile</div>
+        </div>
+    </div>
+
+    <!-- Main Content - Update Profile Form -->
+    <div class="div6">
+        <h2 class="form-title">Update Personal Information</h2>
+
+        @if (TempData["StatusMessage"] != null)
+        {
+            <div id="statusMessage" class="alert alert-success">
+                @TempData["StatusMessage"]
+                <button type="button" class="btn-close float-end" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <form asp-action="UpdateProfile" method="post" id="updateProfileForm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" asp-for="Email" />
+            <input type="hidden" asp-for="AddressId" />
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label asp-for="FullName" class="control-label required">Full Name</label>
+                        <input asp-for="FullName" class="form-control" placeholder="Enter your full name">
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label asp-for="PhoneNumber" class="control-label required">Phone Number</label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="Enter your phone number">
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label asp-for="Gender">Gender</label>
+                        <div class="gender-options">
+                            <div class="gender-option">
+                                <input type="radio" id="male" name="Gender" value="true" @(Model?.Gender == true ? "checked" : "")>
+                                <label for="male">Male</label>
+                            </div>
+                            <div class="gender-option">
+                                <input type="radio" id="female" name="Gender" value="false" @(Model?.Gender == false ? "checked" : "")>
+                                <label for="female">Female</label>
+                            </div>
+                        </div>
+                        <span asp-validation-for="Gender" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Avatar</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="avatar-preview-container">
+                                <img id="avatarPreview" src="@(string.IsNullOrEmpty(Model?.Avatar) ? "~/images/default-avatar.jpg" : Model.Avatar)"
+                                     class="avatar-preview img-fluid rounded-circle" />
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-group">
+                                <label for="avatarUpload">Choose Image</label>
+                                <input type="file" id="avatarUpload" class="form-control" accept="image/*" />
+                                <small class="form-text text-muted">Select an image file (max 1MB). Optional.</small>
+                            </div>
+                            <input type="hidden" asp-for="Avatar" id="avatarBase64" />
+                            <div class="mt-2">
+                                <button type="button" id="removeAvatar" class="btn btn-sm btn-outline-danger">Remove Avatar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Address</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="Province" class="control-label required">Province/City</label>
+                                <select id="tinh1" class="form-select">
+                                    <option value="0">Province/City</option>
+                                </select>
+                                <input type="hidden" asp-for="Province" id="currentProvinceName">
+                                <span asp-validation-for="Province" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="District" class="control-label required">District</label>
+                                <select id="quan1" class="form-select">
+                                    <option value="0">District</option>
+                                </select>
+                                <input type="hidden" asp-for="District" id="currentDistrictName">
+                                <span asp-validation-for="District" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label asp-for="Ward" class="control-label required">Ward/Commune</label>
+                                <select id="phuong1" class="form-select">
+                                    <option value="0">Ward/Commune</option>
+                                </select>
+                                <input type="hidden" asp-for="Ward" id="currentWardName">
+                                <span asp-validation-for="Ward" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="AddressDetail" class="control-label required">Detailed Address</label>
+                        <textarea asp-for="AddressDetail" class="form-control" rows="2"
+                                  placeholder="Enter house number, street, building, ..."></textarea>
+                        <span asp-validation-for="AddressDetail" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Update Information</button>
+                <a asp-action="Index" class="btn btn-outline-secondary ms-2">Back</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/profile.css" />
+}
+    
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/addressSelection.js" asp-append-version="true"></script>
+    <script src="~/js/avatarHandler.js" asp-append-version="true"></script>
+}

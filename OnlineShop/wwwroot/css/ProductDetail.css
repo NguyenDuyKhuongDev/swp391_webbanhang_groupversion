@@ -1,0 +1,120 @@
+﻿.colorrrrr {
+    background-color: #d1d1d1; /* Màu xám nhạt */
+    padding: 30px;
+    border-radius: 10px;
+}
+/* Wrapper for image */
+.product-img-wrapper {
+    display: flex;
+    justify-content: center; /* Center the image horizontally */
+    align-items: center; /* Center the image vertically */
+    
+}
+
+/* Product Image */
+.product-img {
+    width: 90%;
+    height: auto;
+    max-height: 450px; /* Set a max height for the image */
+    object-fit: cover; /* Ensures the image doesn't get stretched */
+    border-radius: 8px;
+}
+
+/* Product Info Container */
+.product-info {
+    text-align: center; /* Centers text inside */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+
+}
+
+h3 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+p {
+    font-size: 1.2rem;
+    color: #555;
+}
+
+/* Form Styles */
+form {
+    background-color: #ebebeb;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+}
+
+.form-group label {
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.form-control {
+    border-radius: 5px;
+    font-size: 1.1rem;
+}
+
+input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+/* Buttons */
+.btn {
+    margin-top: 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+textarea {
+    max-height: 100px; /* Chiều cao tối đa là 100px */
+    width: 100%; /* Đảm bảo nó chiếm hết chiều rộng có sẵn trong div */
+}
+
+.notification {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50; /* Màu xanh cho thông báo thành công */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+    .notification.error {
+        background-color: #f44336; /* Màu đỏ cho thông báo lỗi */
+    }
+
+    .notification.success {
+        background-color: #4CAF50; /* Màu xanh cho thông báo thành công */
+    }
+
+/* Trạng thái */
+.status-active {
+    color: #28a745; /* Màu xanh lá cho trạng thái "Hoạt động" */
+    font-weight: bold;
+}
+
+.status-inactive {
+    color: #dc3545; /* Màu đỏ cho trạng thái "Không hoạt động" */
+    font-weight: bold;
+}

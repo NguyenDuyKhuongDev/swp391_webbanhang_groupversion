@@ -1,0 +1,110 @@
+﻿/* Cài đặt font-size cơ bản */
+html {
+    font-size: 14px;
+    position: relative;
+    min-height: 100%;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+/* Đảm bảo footer cố định ở dưới cùng */
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Đảm bảo chiều cao tối thiểu 100% viewport */
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+
+/* Định dạng header */
+.navbar {
+    background-color: #cb5353; /* Màu đỏ nhạt */
+}
+
+    /* Định dạng chữ trong header */
+    .navbar .navbar-brand,
+    .navbar .nav-link {
+        color: #fff !important; /* Màu trắng để tăng độ tương phản */
+    }
+
+        .navbar .nav-link:hover {
+            color: #e0e0e0 !important; /* Màu xám nhạt khi hover */
+        }
+
+    /* Căn chỉnh các icon sát lề phải */
+    .navbar .ml-auto {
+        margin-right: 0 !important; /* Loại bỏ margin-right mặc định */
+        padding-right: 0; /* Loại bỏ padding-right mặc định */
+    }
+
+    .navbar .container {
+        max-width: 100%; /* Đảm bảo container không giới hạn chiều rộng */
+        padding-right: 15px; /* Khoảng cách nhỏ với lề phải */
+    }
+
+    .navbar .nav-link {
+        padding-right: 0.5rem; /* Khoảng cách nhỏ giữa các icon */
+        padding-left: 0.5rem;
+    }
+
+/* Định dạng dropdown menu */
+.dropdown-menu {
+    min-width: 150px; /* Chiều rộng tối thiểu của dropdown */
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa; /* Màu xám nhạt khi hover */
+}
+
+/* Định dạng footer */
+.custom-footer {
+    background-color: #cb5353; /* Màu đỏ nhạt */
+    color: #fff; /* Màu trắng để tăng độ tương phản */
+}
+
+    .custom-footer a {
+        color: #add8e6; /* Màu xanh nhạt cho liên kết */
+    }
+
+        .custom-footer a:hover {
+            color: #87ceeb; /* Màu xanh nhạt hơn khi hover */
+            text-decoration: underline;
+        }
+
+.footer-contact {
+    margin-bottom: 5px; /* Khoảng cách nhỏ giữa các đoạn văn trong footer */
+}
+
+/* Định dạng số lượng trên biểu tượng giỏ hàng */
+.cart-count {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background-color: #dc3545; /* Màu đỏ */
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Đảm bảo badge của giỏ hàng đồng bộ với cart-count */
+.badge-danger {
+    background-color: #dc3545; /* Đồng bộ với cart-count */
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: bold;
+}

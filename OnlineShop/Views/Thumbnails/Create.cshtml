@@ -1,0 +1,146 @@
+﻿@model OnlineShop.Models.Thumbnail
+
+@{
+    ViewData["Title"] = "Tạo mới Thumbnail";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mt-4">
+            <i class="fas fa-image text-primary me-2"></i>Tạo mới Thumbnail
+        </h1>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Quay lại danh sách
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-plus-circle text-secondary me-2"></i>Thông tin Thumbnail
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-6">
+                    <form asp-action="Create" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <!-- Image Upload Preview -->
+                        <div class="mb-3">
+                            <label asp-for="ThumnailUrl" class="form-label">
+                                <i class="fas fa-link me-1 text-primary"></i>Link Thumbnail
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="fas fa-globe text-muted"></i>
+                                </span>
+                                <input asp-for="ThumnailUrl" class="form-control" placeholder="https://example.com/image.jpg">
+                            </div>
+                            <small class="form-text text-muted">Nhập URL hình ảnh từ internet</small>
+                            <span asp-validation-for="ThumnailUrl" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ThumbnailName" class="form-label">
+                                <i class="fas fa-heading me-1 text-muted"></i>Tên thumbnail
+                            </label>
+                            <input asp-for="ThumbnailName" class="form-control" placeholder="Nhập tên thumbnail...">
+                            <span asp-validation-for="ThumbnailName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Tạo mới
+                            </button>
+                            <button type="reset" class="btn btn-light">
+                                <i class="fas fa-undo me-2"></i>Nhập lại
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
+            border-radius: 0.35rem;
+        }
+
+        .card-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1rem 1.35rem;
+            background-color: #f8f9fa;
+            border-radius: 0.35rem 0.35rem 0 0 !important;
+        }
+
+        .form-control {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #e0e2e4;
+            border-radius: 0.25rem;
+        }
+
+            .form-control:focus {
+                border-color: #86b7fe;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            }
+
+        .img-thumbnail {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            object-fit: cover;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            border-color: rgba(220, 53, 69, 0.2);
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Image upload and preview
+            const imageUpload = document.getElementById('imageUpload');
+            const thumbnailPreview = document.getElementById('thumbnailPreview');
+            const thumbnailUrlInput = document.getElementById('thumbnailUrlInput');
+
+            if (imageUpload && thumbnailPreview) {
+                imageUpload.addEventListener('change', function (e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+
+                        reader.onload = function (event) {
+                            thumbnailPreview.src = event.target.result;
+                            thumbnailPreview.style.display = 'block';
+
+                            // In a real application, you would upload the file to your server here
+                            // and then set the ThumnailUrl to the returned URL
+                            // For demo purposes, we'll just use a fake URL
+                            thumbnailUrlInput.value = `/uploads/${file.name}`;
+                        }
+
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+        });
+    </script>
+}

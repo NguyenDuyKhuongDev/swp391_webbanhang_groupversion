@@ -1,0 +1,130 @@
+﻿@model OnlineShop.Models.Product
+@{
+    ViewData["Title"] = "Chi tiết sản phẩm - " + Model.ProductName;
+}
+
+<h4>Chi tiết sản phẩm</h4>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<div class="row">
+    <!-- Hình ảnh sản phẩm -->
+    <div class="col-md-6">
+        <img src="@Model.ProductImage" class="img-fluid product-detail-image" alt="@Model.ProductName" onerror="this.src='https://via.placeholder.com/400'" />
+    </div>
+
+    <!-- Thông tin sản phẩm -->
+    <div class="col-md-6">
+        <h3>@Model.ProductName</h3>
+        <h4 class="text-danger">Giá: @String.Format("{0:N0}đ", Model.ProductPrice)</h4>
+        <p>@Model.ProductDescription</p>
+
+       
+        <!-- Kích thước -->
+        @if (Model.ProductSizes.Any())
+        {
+            <div class="mb-3 d-flex align-items-center gap-3">
+                <label class="form-label mb-0" style="min-width: 80px;">Kích thước:</label>
+                <div class="btn-group" role="group">
+                    @foreach (var size in Model.ProductSizes)
+                    {
+                        <input type="radio" class="btn-check" name="categorySizeId" id="size_@size.CategorySizeID" value="@size.CategorySizeID" autocomplete="off" @(size == Model.ProductSizes.First() ? "checked" : "") />
+                        <label class="btn btn-outline-secondary size-btn" for="size_@size.CategorySizeID">@size.CategorySize.CategorySizeName</label>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Số lượng -->
+        <div class="mb-3 d-flex align-items-center gap-3">
+            <label class="form-label mb-0" style="min-width: 80px;">Số lượng:</label>
+            <div class="input-group quantity-selector" style="width: 150px;">
+                <button type="button" class="btn btn-outline-secondary" onclick="changeQuantity(-1)">-</button>
+                <input type="number" id="quantity" name="quantity" class="form-control text-center" value="1" min="1" max="@(Model.ProductSizes.Any() ? Model.ProductSizes.First().QuantityBySize : Model.ProductQuantity)" readonly />
+                <button type="button" class="btn btn-outline-secondary" onclick="changeQuantity(1)">+</button>
+            </div>
+        </div>
+
+        <!-- Nút hành động -->
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary flex-grow-1" onclick="addToCart()">Thêm vào giỏ hàng</button>
+            <button type="button" class="btn btn-danger flex-grow-1" onclick="buyNow()">Mua ngay</button>
+        </div>
+
+        <!-- Form ẩn để gửi dữ liệu -->
+        <form id="cartForm" asp-action="AddToCart" asp-controller="Cart" method="get">
+            <input type="hidden" name="productId" value="@Model.ProductID" />
+            <input type="hidden" id="hiddenCategorySizeId" name="categorySizeId" value="@(Model.ProductSizes.Any() ? Model.ProductSizes.First().CategorySizeID : null)" />
+            <input type="hidden" id="hiddenQuantity" name="quantity" value="1" />
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .product-detail-image {
+            max-height: 400px;
+            object-fit: cover;
+            width: 100%;
+        }
+
+        .size-btn {
+            padding: 5px 15px;
+            font-size: 0.9rem;
+        }
+
+        .quantity-selector .btn {
+            padding: 5px 10px;
+        }
+
+        .quantity-selector input {
+            border: 1px solid #ced4da;
+            padding: 5px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // Hàm tăng/giảm số lượng
+        function changeQuantity(delta) {
+            const input = document.getElementById('quantity');
+            const hiddenQuantity = document.getElementById('hiddenQuantity');
+            let value = parseInt(input.value);
+            const max = parseInt(input.max);
+            value += delta;
+            if (value < 1) value = 1;
+            if (value > max) value = max;
+            input.value = value;
+            hiddenQuantity.value = value;
+        }
+
+        // Hàm cập nhật categorySizeId khi chọn kích thước
+        document.querySelectorAll('input[name="categorySizeId"]').forEach(radio => {
+            radio.addEventListener('change', function () {
+                document.getElementById('hiddenCategorySizeId').value = this.value;
+            });
+        });
+
+        // Hàm thêm vào giỏ
+        function addToCart() {
+            const form = document.getElementById('cartForm');
+            form.action = '@Url.Action("AddToCart", "Cart")';
+            form.submit();
+        }
+
+        // Hàm mua ngay
+        function buyNow() {
+            const form = document.getElementById('cartForm');
+            form.action = '@Url.Action("AddToCartAndCheckout", "Cart")';
+            form.submit();
+        }
+    </script>
+}

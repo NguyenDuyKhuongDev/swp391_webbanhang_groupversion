@@ -1,0 +1,303 @@
+﻿@model IEnumerable<OnlineShop.Models.AdTemplate>
+
+@{
+    ViewData["Title"] = "Quản lý Mẫu quảng cáo";
+    var positions = ViewBag.AdPositions as List<AdPosition>;
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mt-4">
+            <i class="fas fa-ad text-primary me-2"></i>Quản lý Mẫu quảng cáo
+        </h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Tạo mới
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-table text-secondary me-2"></i>Danh sách mẫu quảng cáo
+                </h5>
+                <div class="d-flex">
+                    <div class="input-group me-2" style="width: 250px;">
+                        <span class="input-group-text bg-light">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" id="templateSearch" class="form-control" placeholder="Tìm kiếm mẫu...">
+                    </div>
+                    <button class="btn btn-outline-secondary" type="button">
+                        <i class="fas fa-sliders-h me-1"></i> Lọc
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th><i class="fas fa-image me-1"></i> Ảnh xem trước</th>
+                            <th><i class="fas fa-heading me-1"></i> Tên mẫu</th>
+                            <th><i class="fas fa-align-left me-1"></i> Mô tả</th>
+                            <th><i class="fas fa-code me-1"></i> Vị trí quảng cáo</th>
+                            <th><i class="fas fa-calendar-alt me-1"></i> Ngày tạo</th>
+                            <th><i class="fas fa-user me-1"></i> Người tạo</th>
+                            <th><i class="fas fa-check-circle me-1"></i> Trạng thái</th>
+                            <th><i class="fas fa-cogs me-1"></i> Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.PreviewImageUrl))
+                                    {
+                                        <img src="@item.PreviewImageUrl" alt="Preview @item.Name"
+                                             class="img-thumbnail preview-image"
+                                             style="width: 80px; height: 60px; object-fit: cover; cursor: pointer;"
+                                             data-fullsize="@item.PreviewImageUrl">
+                                    }
+                                    else
+                                    {
+                                        <div class="img-thumbnail d-flex align-items-center justify-content-center"
+                                             style="width: 80px; height: 60px; background-color: #f8f9fa;">
+                                            <i class="fas fa-image text-muted"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <h6 class="mb-1">@Html.DisplayFor(modelItem => item.Name)</h6>
+                                </td>
+                                <td>
+                                    <div class="description-container" style="max-width: 250px;">
+                                        <div class="description-text">
+                                            @if (!string.IsNullOrEmpty(item.Description))
+                                            {
+                                                if (item.Description.Length > 100)
+                                                {
+                                                    <span class="short-description">@item.Description.Substring(0, 100)...</span>
+                                                    <span class="full-description" style="display:none;">@item.Description</span>
+                                                    <a href="#" class="read-more" style="font-size: 12px;">Xem thêm</a>
+                                                }
+                                                else
+                                                {
+                                                    @item.Description
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">Không có mô tả</span>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="position-names" style="max-width: 200px;">
+                                        @{
+                                            var positionIds = item.AdTemplatePositions
+                                            .Where(a => a.AdTemplateId == item.Id)
+                                            .Select(a => a.PositionId).ToList();
+                                            var positionNames = positions.Where(p => positionIds.Contains(p.Id)).Select(p => p.Name).ToList();
+                                        }
+
+                                        @if (positionNames.Any())
+                                        {
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach (var name in positionNames)
+                                                {
+                                                    <span class="badge bg-primary bg-opacity-10 text-primary">@name</span>
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Không có vị trí</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    <small class="text-muted">
+                                        <i class="far fa-calendar me-1"></i> @item.CreatedAt
+                                    </small>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fas fa-user-circle me-1"></i>
+                                        @Html.DisplayFor(modelItem => item.CreatedBy)
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i> Đang hoạt động
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">
+                                            <i class="fas fa-times-circle me-1"></i> Ngừng hoạt động
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                                id="actionMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionMenu">
+                                            <li>
+                                                <a class="dropdown-item" asp-action="Edit" asp-route-id="@item.Id">
+                                                    <i class="fas fa-edit me-2 text-primary"></i>Sửa
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" asp-action="Details" asp-route-id="@item.Id">
+                                                    <i class="fas fa-info-circle me-2 text-info"></i>Chi tiết
+                                                </a>
+                                            </li>
+                                            <li>
+                                                @if (item.IsActive)
+                                                {
+                                                    <a class="dropdown-item" asp-action="ToggleActive" asp-route-id="@item.Id">
+                                                        <i class="fas fa-toggle-on me-2 text-success"></i>Vô hiệu hóa
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <a class="dropdown-item" asp-action="ToggleActive" asp-route-id="@item.Id">
+                                                        <i class="fas fa-toggle-off me-2 text-secondary"></i>Kích hoạt
+                                                    </a>
+                                                }
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@item.Id">
+                                                    <i class="fas fa-trash-alt me-2"></i>Xóa
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for image preview -->
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Xem trước ảnh</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid" alt="Preview image">
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
+            border-radius: 0.35rem;
+        }
+
+        .card-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1rem 1.35rem;
+            background-color: #f8f9fa;
+            border-radius: 0.35rem 0.35rem 0 0 !important;
+        }
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .img-thumbnail {
+            padding: 0.15rem;
+            border-radius: 0.25rem;
+            border: 1px solid #dee2e6;
+        }
+
+        .dropdown-menu {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+        }
+
+        .preview-image:hover {
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .description-text {
+            line-height: 1.4;
+            font-size: 0.9rem;
+        }
+
+        .read-more {
+            color: #0d6efd;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Image preview modal
+            $('.preview-image').click(function () {
+                var imageUrl = $(this).data('fullsize');
+                $('#modalImage').attr('src', imageUrl);
+                $('#imagePreviewModal').modal('show');
+            });
+
+            // Read more/less functionality for descriptions
+            $('.read-more').click(function (e) {
+                e.preventDefault();
+                var container = $(this).closest('.description-text');
+                var shortDesc = container.find('.short-description');
+                var fullDesc = container.find('.full-description');
+
+                if (shortDesc.is(':visible')) {
+                    shortDesc.hide();
+                    fullDesc.show();
+                    $(this).text('Thu gọn');
+                } else {
+                    shortDesc.show();
+                    fullDesc.hide();
+                    $(this).text('Xem thêm');
+                }
+            });
+        });
+    </script>
+}

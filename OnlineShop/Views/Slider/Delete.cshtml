@@ -1,0 +1,35 @@
+﻿@model OnlineShop.Models.Slider
+@{
+    ViewData["Title"] = "Xóa Slider";
+}
+
+<h2>Xóa Slider</h2>
+
+<h3>Bạn có chắc chắn muốn xóa slider này?</h3>
+
+<div>
+    <h4>@Model.Title</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">Hình ảnh</dt>
+        <dd class="col-sm-10">
+            <img src="@Model.ImageUrl" alt="@Model.Title" style="width: 100px; height: auto;" onerror="this.src='https://via.placeholder.com/100?text=Slider+Image'" />
+        </dd>
+        <dt class="col-sm-2">Tiêu đề</dt>
+        <dd class="col-sm-10">@Model.Title</dd>
+        <dt class="col-sm-2">Mô tả</dt>
+        <dd class="col-sm-10">@Model.Description</dd>
+        <dt class="col-sm-2">Liên kết</dt>
+        <dd class="col-sm-10">@Model.Link</dd>
+        <dt class="col-sm-2">Trạng thái</dt>
+        <dd class="col-sm-10">@(Model.IsActive ? "Active" : "Inactive")</dd>
+        <dt class="col-sm-2">Thứ tự hiển thị</dt>
+        <dd class="col-sm-10">@Model.DisplayOrder</dd>
+    </dl>
+
+    <form asp-action="Delete" method="post">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">Xóa</button>
+        <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+    </form>
+</div>

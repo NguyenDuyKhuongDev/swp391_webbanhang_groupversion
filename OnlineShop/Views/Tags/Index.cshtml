@@ -1,0 +1,213 @@
+﻿@model IEnumerable<OnlineShop.Models.Tag>
+
+@{
+    ViewData["Title"] = "Quản lý Tags";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mt-4">
+            <i class="fas fa-tags text-primary me-2"></i>@ViewData["Title"]
+        </h1>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Thêm Tag mới
+        </a>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-list text-secondary me-2"></i>Danh sách Tags
+                </h5>
+                <div class="d-flex">
+                    <div class="input-group me-2" style="width: 250px;">
+                        <span class="input-group-text bg-light">
+                            <i class="fas fa-search text-muted"></i>
+                        </span>
+                        <input type="text" id="tagSearch" class="form-control" placeholder="Tìm kiếm tag..." />
+                    </div>
+                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse">
+                        <i class="fas fa-sliders-h me-1"></i> Lọc
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Section (Collapsible) -->
+        <div class="collapse" id="filterCollapse">
+            <div class="card-body border-top">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small text-muted">Ngày tạo</label>
+                        <div class="input-group">
+                            <input type="date" class="form-control" id="startDate">
+                            <span class="input-group-text">đến</span>
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small text-muted">Sắp xếp</label>
+                        <select class="form-select">
+                            <option selected>Mới nhất</option>
+                            <option>Cũ nhất</option>
+                            <option>Tên A-Z</option>
+                            <option>Tên Z-A</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button class="btn btn-primary me-2">Áp dụng</button>
+                        <button class="btn btn-outline-secondary">Đặt lại</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="30%">
+                                <i class="fas fa-font me-1"></i> Tên Tag
+                            </th>
+                            <th width="30%">
+                                <i class="fas fa-link me-1"></i> Đường dẫn
+                            </th>
+                            <th width="20%">
+                                <i class="fas fa-calendar-alt me-1"></i> Ngày tạo
+                            </th>
+                            <th width="20%">
+                                <i class="fas fa-cogs me-1"></i> Thao tác
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary p-2">
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </span>
+                                </td>
+                                <td>
+                                    <small class="text-muted">/@Html.DisplayFor(modelItem => item.Slug)</small>
+                                </td>
+                                <td>
+                                    <small class="text-muted">@item.CreateAt</small>
+                                </td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button"
+                                                id="actionMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionMenu">
+                                            <li>
+                                                <a class="dropdown-item" asp-action="Edit" asp-route-id="@item.Id">
+                                                    <i class="fas fa-edit me-2 text-primary"></i>Sửa
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" asp-action="Details" asp-route-id="@item.Id">
+                                                    <i class="fas fa-info-circle me-2 text-info"></i>Chi tiết
+                                                </a>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@item.Id">
+                                                    <i class="fas fa-trash-alt me-2"></i>Xóa
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-0">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                            <i class="fas fa-angle-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
+            border-radius: 0.35rem;
+        }
+
+        .card-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1rem 1.35rem;
+            background-color: #f8f9fa;
+            border-radius: 0.35rem 0.35rem 0 0 !important;
+        }
+
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 0.75em;
+        }
+
+        .dropdown-menu {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            border: none;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        // Tìm kiếm tag
+        document.getElementById('tagSearch').addEventListener('input', function() {
+            const searchValue = this.value.toLowerCase();
+            const rows = document.querySelectorAll('tbody tr');
+
+            rows.forEach(row => {
+                const name = row.querySelector('td:nth-child(1) .badge').textContent.toLowerCase();
+                const slug = row.querySelector('td:nth-child(2) small').textContent.toLowerCase();
+
+                if (name.includes(searchValue) || slug.includes(searchValue)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+}

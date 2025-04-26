@@ -1,0 +1,215 @@
+﻿@model OnlineShop.Models.Product
+@using System.Text.Encodings.Web
+@{
+    ViewData["Title"] = "Chi Tiết Sản Phẩm";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/ProductDetail.css" asp-append-version="true" />
+}
+
+<div class="container mt-5">
+    <div>
+        <div id="notification" class="notification"></div>
+    </div>
+
+    <div class="mb-4">
+        <a asp-controller="Product" asp-action="ProductView" class="btn btn-warning">Quay Lại Danh Sách</a>
+    </div>
+    <!-- Thông Tin Sản Phẩm -->
+    <div class="row colorrrrr align-items-center mt-5">
+        <!-- Cột trái với hình ảnh -->
+        <div class="col-md-6">
+            <div class="product-img-wrapper">
+                <img src="@Model.ProductImage" alt="@Model.ProductName" class="product-img" />
+            </div>
+        </div>
+
+
+        <!-- Cột phải với thông tin -->
+        <div class="col-md-6">
+            <div class="product-info">
+                <h3>@Model.ProductName</h3>
+                <p><strong>Danh Mục:</strong> @Model.CategoryProduct?.CategoryProductName</p>
+                <p><strong>Mô Tả:</strong> @Model.ProductDescription</p>
+                <p><strong>Giá Bán:</strong> @Model.ProductPrice.ToString("N0") VNĐ</p>
+                <p>
+                    <strong>Kích Thước:</strong>
+                    @if (Model.ProductSizes != null && Model.ProductSizes.Any())
+                    {
+                        @string.Join(", ", Model.ProductSizes.Select(ps => ps.CategorySize?.CategorySizeName))
+                    }
+                    else
+                    {
+                        <span>Không có kích thước</span>
+                    }
+                </p>
+                <p class="@(Model.ProductStatus ? "status-active" : "status-inactive")"><strong>Trạng Thái:</strong> @(Model.ProductStatus ? "Hoạt động" : "Không hoạt động")</p>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Form Cập Nhật Sản Phẩm -->
+    <h3 class="mt-5 text-center">Quản Lý Sản Phẩm</h3>
+    <form asp-controller="Product" asp-action="HandleUpdateAndDeleteProduct" method="post" enctype="multipart/form-data">
+        <input asp-for="ProductID" type="hidden" />
+        <input asp-for="ProductImage" type="hidden" /> <!-- Giữ URL ảnh hiện tại -->
+
+        <div class="form-group mt-3">
+            <label asp-for="ProductName">Tên Sản Phẩm</label>
+            <input asp-for="ProductName" class="form-control" required />
+            <span asp-validation-for="ProductName" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mt-3">
+            <label asp-for="CategoryProductId">Danh Mục</label>
+            <select asp-for="CategoryProductId" class="form-control" required>
+                <option value="">-- Chọn Danh Mục --</option>
+                @if (ViewBag.Categories != null)
+                {
+                    @foreach (var category in ViewBag.Categories)
+                    {
+                        <option value="@category.CategoryProductID">@category.CategoryProductName</option>
+                    }
+                }
+                else
+                {
+                    <option value="" disabled>Không có danh mục</option>
+                }
+            </select>
+            <span asp-validation-for="CategoryProductId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mt-3">
+            <label asp-for="ProductDescription">Mô Tả</label>
+            <textarea asp-for="ProductDescription" class="form-control" rows="3" required></textarea>
+            <span asp-validation-for="ProductDescription" class="text-danger"></span>
+        </div>
+
+        <div class="form-group mt-3">
+            <label asp-for="ProductPrice">Giá Bán (VNĐ)</label>
+            <input asp-for="ProductPrice" type="number" class="form-control" required />
+            <span asp-validation-for="ProductPrice" class="text-danger"></span>
+        </div>
+
+
+        <div class="form-group mt-3">
+            <label>Kích Thước và Số Lượng</label>
+            <div class="d-flex flex-wrap">
+                @foreach (var size in ViewBag.Sizes)
+                {
+                    var productSize = Model.ProductSizes.FirstOrDefault(ps => ps.CategorySizeID == size.CategorySizeID);
+                    <div class="size-quantity-wrapper mx-2">
+                        <div class="form-check">
+                            <input type="checkbox" name="SelectedSizes" value="@size.CategorySizeID" class="form-check-input size-checkbox" id="size-@size.CategorySizeID"
+                            @(productSize != null ? "checked" : "") />
+                            <label class="form-check-label" for="size-@size.CategorySizeID">@size.CategorySizeName</label>
+                        </div>
+                        <input type="number" name="SizeQuantities[@size.CategorySizeID]" class="form-control size-quantity-input" min="0" placeholder="Số lượng"
+                               value="@(productSize != null ? productSize.QuantityBySize : "")" @(productSize == null ? "disabled" : "") />
+                    </div>
+                }
+            </div>
+            <span class="text-danger" id="size-error"></span>
+            <span class="text-danger" id="quantity-error"></span>
+        </div>
+
+        <div class="form-group mt-3">
+            <label for="ProductImageFile">Tải hình ảnh mới cho sản phẩm</label>
+            <input type="file" name="ProductImageFile" class="form-control-file" accept=".jpg,.jpeg,.png,.gif,.webp" />
+            <span class="text-danger" asp-validation-for="ProductImage"></span>
+        </div>
+
+        <div style="display: flex; justify-content:space-evenly" class="mt-3">
+            <button type="submit" name="actionProduct" value="0" class="btn btn-outline-secondary">Cập Nhật Sản Phẩm</button>
+            <button type="submit" name="actionProduct" value="1" class="btn btn-outline-danger" onclick="return confirmDelete()">Thay Đổi Trạng Thái</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Kiểm tra nếu có thông báo từ Controller
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+                showNotification('@JavaScriptEncoder.Default.Encode(TempData["SuccessMessage"].ToString())', 'success');
+            </text>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <text>
+                showNotification('@JavaScriptEncoder.Default.Encode(TempData["ErrorMessage"].ToString())', 'error');
+            </text>
+        }
+            // Hàm để hiển thị thông báo
+            function showNotification(message, type) {
+                var notification = document.getElementById("notification");
+                notification.innerText = message;
+                notification.classList.add(type); // Thêm class success hoặc error để đổi màu
+
+                // Hiển thị notification
+                notification.style.display = 'block';
+
+                // Ẩn notification sau 2s
+                setTimeout(function () {
+                    notification.style.display = 'none';
+                }, 2000);
+            }
+
+
+        function confirmDelete() {
+            return confirm("Bạn có chắc chắn muốn thay đổi trạng thái sản phẩm?");
+        }
+
+        // Enable/disable ô nhập số lượng dựa trên checkbox
+        document.querySelectorAll('.size-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                const quantityInput = this.parentElement.nextElementSibling;
+                quantityInput.disabled = !this.checked;
+                if (!this.checked) {
+                    quantityInput.value = '';
+                }
+            });
+        });
+
+        // Client-side validation cho kích thước
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const selectedSizes = document.querySelectorAll('input[name="SelectedSizes"]:checked');
+            const sizeError = document.getElementById('size-error');
+            const quantityError = document.getElementById('quantity-error');
+            let isValid = true;
+            if (selectedSizes.length === 0) {
+                sizeError.textContent = 'Vui lòng chọn ít nhất một kích thước.';
+                e.preventDefault();
+            } else {
+                sizeError.textContent = '';
+            }
+
+            // Kiểm tra số lượng cho các kích thước được chọn
+            let quantityValid = true;
+            selectedSizes.forEach(size => {
+                const sizeId = size.value;
+                const quantityInput = document.querySelector(`input[name="SizeQuantities[${sizeId}]"]`);
+                const quantityValue = quantityInput.value;
+
+                if (!quantityValue || quantityValue < 0) {
+                    quantityError.textContent = 'Vui lòng nhập số lượng ≥ 0 cho kích thước ' + size.nextElementSibling.textContent + '.';
+                    quantityValid = false;
+                    isValid = false;
+                }
+            });
+
+            if (quantityValid) {
+                quantityError.textContent = '';
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+            }
+        });
+    </script>
+}
+

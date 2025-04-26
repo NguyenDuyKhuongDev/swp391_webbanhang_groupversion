@@ -1,0 +1,267 @@
+﻿@model OnlineShop.Models.Blog
+
+@{
+    ViewData["Title"] = "Chi tiết bài viết";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mt-4">
+            <i class="fas fa-file-alt text-primary me-2"></i>@ViewData["Title"]
+        </h1>
+        <div>
+            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-warning me-2">
+                <i class="fas fa-edit me-2"></i>Chỉnh sửa
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-info-circle text-secondary me-2"></i>Thông tin cơ bản
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Cột trái - Thông tin chính -->
+                <div class="col-md-8">
+                    <div class="mb-4">
+                        <h4 class="fw-bold">@Html.DisplayFor(model => model.Title)</h4>
+                        <small class="text-muted">
+                            <i class="fas fa-link me-1"></i>/@Html.DisplayFor(model => model.Slug)
+                        </small>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold"><i class="fas fa-align-left me-2"></i>Tóm tắt</h6>
+                        <p class="text-muted">@Html.DisplayFor(model => model.Summary)</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6 class="fw-bold"><i class="fas fa-file-alt me-2"></i>Nội dung</h6>
+                        <div class="border rounded p-3 bg-light">
+                            @Html.Raw(Model.Content)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cột phải - Thông tin bổ sung -->
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-image me-2"></i>Ảnh đại diện
+                            </h6>
+                        </div>
+                        <div class="card-body text-center">
+                            @if (Model.Thumbnail != null)
+                            {
+                                <img src="@Model.Thumbnail.ThumnailUrl" alt="@Model.Thumbnail.ThumbnailName"
+                                     class="img-fluid rounded" style="max-height: 200px;">
+                                <p class="mt-2 mb-0 small text-muted">ID: @Model.ThumbnailId</p>
+                            }
+                            else
+                            {
+                                <div class="text-center py-4 text-muted">
+                                    <i class="fas fa-image fa-3x mb-2"></i>
+                                    <p>Không có ảnh đại diện</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-tag me-2"></i>Danh mục
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Category != null)
+                            {
+                                <span class="badge bg-primary bg-opacity-10 text-primary p-2">
+                                    @Model.Category.Name (ID: @Model.Category.Id)
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary p-2">
+                                    Chưa phân loại
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-chart-line me-2"></i>Thống kê
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex flex-wrap gap-3">
+                                <div class="text-center">
+                                    <div class="fs-5 fw-bold">@Model.ViewCount</div>
+                                    <small class="text-muted">Lượt xem</small>
+                                </div>
+                                <div class="text-center">
+                                    <div class="fs-5 fw-bold">@Model.LikeCount</div>
+                                    <small class="text-muted">Lượt thích</small>
+                                </div>
+                                <div class="text-center">
+                                    <div class="fs-5 fw-bold">@Model.CommentCount</div>
+                                    <small class="text-muted">Bình luận</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-user-edit me-2"></i>Tác giả
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-user-circle fa-2x text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1 ms-3">
+                                    <div class="fw-bold">@Model.AuthorId</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-cog text-secondary me-2"></i>Thông tin hệ thống
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4 fw-bold">
+                            <i class="fas fa-calendar-plus me-2"></i>Ngày đăng
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (Model.PublishedDate.HasValue)
+                            {
+                                @Model.PublishedDate.Value.ToString("dd/MM/yyyy HH:mm")
+                            }
+                            else
+                            {
+                                <span class="text-muted">Chưa đăng</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4 fw-bold">
+                            <i class="fas fa-sync-alt me-2"></i>Cập nhật lần cuối
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (Model.LastUpdated.HasValue)
+                            {
+                                @Model.LastUpdated.Value.ToString("dd/MM/yyyy HH:mm")
+                            }
+                            else
+                            {
+                                <span class="text-muted">Chưa cập nhật</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4 fw-bold">
+                            <i class="fas fa-bullhorn me-2"></i>Trạng thái
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (Model.IsPublished)
+                            {
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i> Đã xuất bản
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-pencil-alt me-1"></i> Bản nháp
+                                </span>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4 fw-bold">
+                            <i class="fas fa-tag me-2"></i>Meta Title
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (!string.IsNullOrEmpty(Model.MetaTitle))
+                            {
+                                @Model.MetaTitle
+                            }
+                            else
+                            {
+                                <span class="text-muted">Không có</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4 fw-bold">
+                            <i class="fas fa-align-left me-2"></i>Meta Description
+                        </dt>
+                        <dd class="col-sm-8">
+                            @if (!string.IsNullOrEmpty(Model.MetaDescription))
+                            {
+                                @Model.MetaDescription
+                            }
+                            else
+                            {
+                                <span class="text-muted">Không có</span>
+                            }
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.1);
+            border-radius: 0.35rem;
+        }
+
+        .card-header {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding: 1rem 1.35rem;
+            background-color: #f8f9fa;
+            border-radius: 0.35rem 0.35rem 0 0 !important;
+        }
+
+        dt {
+            color: #6c757d;
+        }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.5em 0.75em;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+}

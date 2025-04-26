@@ -1,0 +1,78 @@
+﻿/* Style cho các thẻ input và textarea */
+.form-group {
+    margin-bottom: 15px;
+}
+
+input[type="text"],
+input[type="number"],
+textarea,
+select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+
+input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+/* Button */
+button[type="submit"] {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+    button[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+/* Image Upload */
+input[type="file"] {
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+/* Form layout */
+form {
+    background-color: #ebebeb;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+}
+
+
+h2 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.notification {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4CAF50; /* Màu xanh cho thông báo thành công */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+    .notification.error {
+        background-color: #f44336; /* Màu đỏ cho thông báo lỗi */
+    }
+
+    .notification.success {
+        background-color: #4CAF50; /* Màu xanh cho thông báo thành công */
+    }

@@ -1,0 +1,69 @@
+@using OnlineShop.Data
+@model SupportTicket
+
+<div class="container my-4">
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">Ticket #@Model.Id: @Model.Subject</h4>
+                <div>
+                    <form asp-action="UpdateStatus" method="post" class="d-inline-block me-2">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="Open" selected="@(Model.Status == "Open")">Open</option>
+                            <option value="In Progress" selected="@(Model.Status == "In Progress")">In Progress</option>
+                            <option value="Closed" selected="@(Model.Status == "Closed")">Closed</option>
+                        </select>
+                    </form>
+                    <span class="badge bg-@(Model.Status switch {
+                        "Open" => "warning",
+                        "In Progress" => "info",
+                        "Closed" => "success",
+                        _ => "secondary"
+                    })">@Model.Status</span>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <h5>Customer Information</h5>
+                <p><strong>Email:</strong> @Model.User.Email</p>
+                <p><strong>Created:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+            </div>
+
+            <div class="mb-4">
+                <h5>Description</h5>
+                <p class="border rounded p-3 bg-light">@Model.Description</p>
+            </div>
+
+            <h5>Conversation</h5>
+            <div class="conversation-area mb-4">
+                @foreach (var reply in Model.Replies.OrderBy(r => r.CreatedAt))
+                {
+                    <div class="card mb-3 @(reply.UserId == Model.UserId ? "border-primary" : "border-success")">
+                        <div class="card-header bg-light">
+                            <strong>@(reply.UserId == Model.UserId ? "Customer" : "Support Staff")</strong>
+                            <small class="text-muted float-end">@reply.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">@reply.Message</p>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            @if (Model.Status != "Closed")
+            {
+                <form asp-action="Reply" method="post">
+                    <input type="hidden" name="ticketId" value="@Model.Id" />
+                    <div class="mb-3">
+                        <label class="form-label">Reply to Customer</label>
+                        <textarea name="message" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Reply</button>
+                </form>
+            }
+        </div>
+    </div>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>
