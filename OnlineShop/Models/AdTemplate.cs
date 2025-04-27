@@ -7,6 +7,7 @@ namespace OnlineShop.Models;
 public partial class AdTemplate
 {
     public int Id { get; set; }
+    public int TypeId { get; set; }
 
     public string? Name { get; set; }
 
@@ -21,9 +22,12 @@ public partial class AdTemplate
     public int? CreatedBy { get; set; }
 
     public bool IsActive { get; set; }
+    
 
     public virtual ICollection<Advertisement> Advertisements { get; set; } = new List<Advertisement>();
     public virtual ICollection<AdTemplatePosition> AdTemplatePositions { get; set; } = new List<AdTemplatePosition>();
     [NotMapped] // Không ánh xạ vào database , khi lấy dữ liệu từ vie xuống thì dùng cho asp-for
-    public List<int>? SelectedPositionIds { get; set; } 
+    public List<int>? SelectedPositionIds { get; set; }
+    
+    public virtual AdTemplateType? AdTemplateType { get; set; } = null!;
 }

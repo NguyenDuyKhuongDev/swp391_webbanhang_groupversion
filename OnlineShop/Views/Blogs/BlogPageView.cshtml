@@ -1,4 +1,5 @@
-﻿@model OnlineShop.Models.Blog
+﻿@using Microsoft.AspNetCore.Html
+@model OnlineShop.Models.Blog
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
@@ -444,3 +445,14 @@
         });
     </script>
 }
+@* @functions {
+    public IHtmlContent RenderAd(List<AdPlacement> adPlacements, int positionId)
+    {
+        var ad = adPlacements?.FirstOrDefault(x => x.PositionId == positionId);
+        if (ad != null)
+        {
+            return new HtmlString(ad.HtmlContent); // Replace TemplateHtml with HtmlContent
+        }
+        return HtmlString.Empty;
+    }
+} *@

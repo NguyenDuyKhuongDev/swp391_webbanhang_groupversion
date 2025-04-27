@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Quản lý Mẫu quảng cáo";
     var positions = ViewBag.AdPositions as List<AdPosition>;
+    var templateTypes = ViewBag.TemplateTypes as List<AdTemplateType>;
 }
 
 <div class="container-fluid px-4">
@@ -43,8 +44,8 @@
                             <th><i class="fas fa-heading me-1"></i> Tên mẫu</th>
                             <th><i class="fas fa-align-left me-1"></i> Mô tả</th>
                             <th><i class="fas fa-code me-1"></i> Vị trí quảng cáo</th>
+                            <th><i class="fas fa-tag me-1"></i> Kiểu template</th>
                             <th><i class="fas fa-calendar-alt me-1"></i> Ngày tạo</th>
-                            <th><i class="fas fa-user me-1"></i> Người tạo</th>
                             <th><i class="fas fa-check-circle me-1"></i> Trạng thái</th>
                             <th><i class="fas fa-cogs me-1"></i> Thao tác</th>
                         </tr>
@@ -120,15 +121,17 @@
                                     </div>
                                 </td>
                                 <td>
+                                    @{
+                                        var templateTypeName = templateTypes?.FirstOrDefault(t => t.Id == item.TypeId)?.Name ?? "Không xác định";
+                                    }
+                                    <span class="badge bg-info bg-opacity-10 text-info">
+                                        <i class="fas fa-tag me-1"></i>@templateTypeName
+                                    </span>
+                                </td>
+                                <td>
                                     <small class="text-muted">
                                         <i class="far fa-calendar me-1"></i> @item.CreatedAt
                                     </small>
-                                </td>
-                                <td>
-                                    <span class="badge bg-light text-dark">
-                                        <i class="fas fa-user-circle me-1"></i>
-                                        @Html.DisplayFor(modelItem => item.CreatedBy)
-                                    </span>
                                 </td>
                                 <td>
                                     @if (item.IsActive)
@@ -186,7 +189,6 @@
                                 </td>
                             </tr>
                         }
-
                     </tbody>
                 </table>
             </div>
@@ -252,6 +254,10 @@
             font-weight: 500;
             padding: 0.35em 0.65em;
         }
+
+            .badge.bg-info.bg-opacity-10 {
+                border: 1px solid rgba(13, 202, 240, 0.3);
+            }
 
         .preview-image:hover {
             opacity: 0.8;

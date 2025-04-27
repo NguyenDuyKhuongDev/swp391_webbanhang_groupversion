@@ -21,6 +21,7 @@ namespace OnlineShop.Data
         public DbSet<TicketReply> TicketReplies { get; set; }
         public DbSet<UserAddress> UserAddresses { get; set; }
         public DbSet<CartItemEntity> CartItems { get; set; }
+        public DbSet<AdTemplateType> AdTemplateTypes { get; set; }
 
         public DbSet<Slider> Sliders { get; set; }
 
@@ -36,6 +37,7 @@ namespace OnlineShop.Data
         public virtual DbSet<AdTemplate> AdTemplates { get; set; }
 
         public virtual DbSet<Advertisement> Advertisements { get; set; }
+        public virtual DbSet<AdProducts> AdProducts { get; set; }
 
         public virtual DbSet<Blog> Blogs { get; set; }
 
@@ -64,6 +66,12 @@ namespace OnlineShop.Data
                 .WithMany(cp => cp.Products)
                 .HasForeignKey(p => p.CategoryProductId)
                 .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
+
+            builder.Entity<Product>()
+                .HasMany(p => p.AdProducts)
+                .WithOne(p => p.Product)
+                .HasForeignKey(p => p.ProductId)
+                .HasConstraintName("FK_AdProducts_Products");
 
             builder.Entity<ProductSize>()
                 .HasKey(ps => new { ps.ProductID, ps.CategorySizeID });
@@ -241,6 +249,11 @@ namespace OnlineShop.Data
                 entity.Property(e => e.CreatedAt).HasColumnType("date");
                 entity.Property(e => e.Name).HasMaxLength(100);
                 entity.Property(e => e.PreviewImageUrl).HasMaxLength(500);
+
+                entity.HasOne(d => d.AdTemplateType)
+                .WithMany()
+                .HasForeignKey(d => d.TypeId)
+                .HasConstraintName("FK_AdTemplate_AdTemplateType");
             });
 
             builder.Entity<AdTemplatePosition>(entity =>
@@ -279,6 +292,11 @@ namespace OnlineShop.Data
                 entity.HasOne(d => d.AdTemplate).WithMany(p => p.Advertisements)
                     .HasForeignKey(d => d.AdTemplateId)
                     .HasConstraintName("FK_Advertisement_AdTemplate");
+
+                entity.HasMany(a => a.AdProducts)
+                .WithOne(a => a.Advertisement)
+                .HasForeignKey(a => a.AdId)
+                .HasConstraintName("FK_Advertisement_AdProduct");
             });
 
             builder.Entity<Blog>(entity =>

@@ -1,0 +1,310 @@
+﻿@model OnlineShop.Models.Advertisement
+@{
+    ViewData["Title"] = "Create Advertisement";
+    var templateTypes = ViewBag.templateTypes as List<AdTemplateType> ?? new List<AdTemplateType>();
+    var categories = ViewBag.categories as List<CategoryProduct> ?? new List<CategoryProduct>();
+    var products = ViewBag.Products as List<Product> ?? new List<Product>();
+}
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Create New Advertisement</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" id="adForm">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="Title" class="form-label fw-bold"></label>
+                            <input asp-for="Title" class="form-control" placeholder="Enter advertisement title" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <!-- Template Type Section -->
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-bold">Template Type</label>
+                            <div class="template-type-selection">
+                                @foreach (var template in templateTypes)
+                                {
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input template-type-radio" type="radio" name="TemplateType"
+                                               id="template-@template.Id" value="@template.Id"
+                                               data-template-name="@template.Name.ToLower()" />
+                                        <label class="form-check-label" for="template-@template.Id">
+                                            @template.Name
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                            <input type="hidden" asp-for="AdTemplateId" id="selectedTemplateId" />
+                        </div>
+
+                        <!-- Banner Image Section - Show only for Banner template -->
+                        <div class="form-group mb-3 template-specific banner-specific">
+                            <label asp-for="ImageUrl" class="form-label fw-bold"></label>
+                            <input asp-for="ImageUrl" class="form-control" placeholder="Enter image URL" />
+                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                        </div>
+
+                        <!-- Link URL Section -->
+                        <div class="form-group mb-3">
+                            <label asp-for="LinkUrl" class="form-label fw-bold"></label>
+                            <input asp-for="LinkUrl" class="form-control" placeholder="Enter URL to redirect" />
+                            <span asp-validation-for="LinkUrl" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <!-- Categories Section -->
+                        <div class="form-group mb-3">
+                            <label class="form-label fw-bold">Categories</label>
+                            <div class="categories-selection border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                                @foreach (var category in categories)
+                                {
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input category-checkbox" type="checkbox"
+                                               id="category-@category.CategoryProductID" value="@category.CategoryProductID" />
+                                        <label class="form-check-label" for="category-@category.CategoryProductID">
+                                            @category.CategoryProductName
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                            <input type="hidden" name="SelectedCategories" id="selectedCategories" />
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="StartDate" class="form-label fw-bold"></label>
+                                    <input asp-for="StartDate" class="form-control" type="date" />
+                                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="EndDate" class="form-label fw-bold"></label>
+                                    <input asp-for="EndDate" class="form-control" type="date" />
+                                    <span asp-validation-for="EndDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-check mb-3">
+                            <input class="form-check-input" asp-for="IsActive" />
+                            <label class="form-check-label" asp-for="IsActive">Active</label>
+                        </div>
+
+                        <input type="hidden" asp-for="CreatedAt" value="@DateTime.Now" />
+                        <input type="hidden" asp-for="UpdatedAt" value="@DateTime.Now" />
+                    </div>
+                </div>
+
+                <!-- Products Section -->
+                <div class="product-selection-container mt-4 border rounded p-3 template-specific slideshow-specific">
+                    <h5 class="mb-3">Select Products</h5>
+                    <div class="mb-3 product-filter">
+                        <div class="alert alert-info">
+                            Select categories above to filter products
+                        </div>
+                    </div>
+                    <div class="row products-grid">
+                        @foreach (var product in products)
+                        {
+                            <div class="col-md-3 mb-3 product-item" data-category-ids="@string.Join(",", product.CategoryProductId )">
+                                <div class="card product-card h-100">
+                                    <img src="@product." class="card-img-top product-image" alt="@product.ProductName" />
+                                    <div class="card-body">
+                                        <h6 class="card-title">@product.ProductName</h6>
+                                    </div>
+                                    <div class="card-footer bg-white border-top-0">
+                                        <div class="form-check">
+                                            <input class="form-check-input product-checkbox" type="checkbox"
+                                                   id="product-@product.ProductImage" value="@product.ProductID" />
+                                            <label class="form-check-label" for="product-@product.CategoryProductId">
+                                                Select
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <input type="hidden" name="SelectedProducts" id="selectedProducts" />
+                </div>
+
+                <div class="form-group mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Create Advertisement</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-lg ms-2">Back to List</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function() {
+            // Style for selected product cards
+            const updateProductCardStyle = function(checkbox) {
+                const card = $(checkbox).closest('.product-card');
+                if ($(checkbox).is(':checked')) {
+                    card.addClass('selected-product');
+                } else {
+                    card.removeClass('selected-product');
+                }
+            };
+
+            // Handle template type selection
+            $('.template-type-radio').change(function() {
+                const templateId = $(this).val();
+                const templateName = $(this).data('template-name');
+
+                // Update hidden field
+                $('#selectedTemplateId').val(templateId);
+
+                // Show/hide template-specific sections
+                $('.template-specific').hide();
+
+                if (templateName === 'banner') {
+                    $('.banner-specific').show();
+                    $('.slideshow-specific').hide().find('.product-checkbox').prop('disabled', true);
+                } else if (templateName === 'slideshow') {
+                    $('.banner-specific').hide();
+                    $('.slideshow-specific').show().find('.product-checkbox').prop('disabled', false);
+                }
+            });
+
+            // Handle category selection
+            $('.category-checkbox').change(function() {
+                updateSelectedCategories();
+                filterProducts();
+            });
+
+            // Handle product selection
+            $('.product-checkbox').change(function() {
+                updateSelectedProducts();
+                updateProductCardStyle(this);
+            });
+
+            // Initialize page
+            $('.template-specific').hide();
+            $('.product-checkbox').each(function() {
+                updateProductCardStyle(this);
+            });
+
+            // Update hidden field with selected categories
+            function updateSelectedCategories() {
+                const selectedCategories = [];
+                $('.category-checkbox:checked').each(function() {
+                    selectedCategories.push($(this).val());
+                });
+                $('#selectedCategories').val(selectedCategories.join(','));
+            }
+
+            // Update hidden field with selected products
+            function updateSelectedProducts() {
+                const selectedProducts = [];
+                $('.product-checkbox:checked').each(function() {
+                    selectedProducts.push($(this).val());
+                });
+                $('#selectedProducts').val(selectedProducts.join(','));
+            }
+
+            // Filter products based on selected categories
+            function filterProducts() {
+                const selectedCategories = [];
+                $('.category-checkbox:checked').each(function() {
+                    selectedCategories.push($(this).val());
+                });
+
+                if (selectedCategories.length === 0) {
+                    // Show all products if no categories selected
+                    $('.product-item').show();
+                    $('.product-filter .alert').text('Select categories above to filter products');
+                } else {
+                    $('.product-filter .alert').text(selectedCategories.length + ' categories selected');
+
+                    $('.product-item').each(function() {
+                        const productCategoryIds = $(this).data('category-ids').toString().split(',');
+                        let show = false;
+
+                        // Check if product belongs to any selected category
+                        for (let i = 0; i < selectedCategories.length; i++) {
+                            if (productCategoryIds.includes(selectedCategories[i])) {
+                                show = true;
+                                break;
+                            }
+                        }
+
+                        if (show) {
+                            $(this).show();
+                        } else {
+                            $(this).hide();
+                        }
+                    });
+                }
+            }
+
+            // Form submission
+            $('#adForm').submit(function(e) {
+                // Validate form before submission
+                if (!$('.template-type-radio:checked').val()) {
+                    alert('Please select a template type');
+                    e.preventDefault();
+                    return false;
+                }
+
+                const templateName = $('.template-type-radio:checked').data('template-name');
+                if (templateName === 'slideshow' && $('.product-checkbox:checked').length === 0) {
+                    alert('Please select at least one product for slideshow');
+                    e.preventDefault();
+                    return false;
+                }
+
+                return true;
+            });
+        });
+    </script>
+    <style>
+        .product-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .product-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .selected-product {
+            border-color: #0d6efd !important;
+            background-color: rgba(13, 110, 253, 0.05);
+        }
+
+        .product-image {
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .form-check-input:checked ~ .form-check-label {
+            font-weight: bold;
+        }
+
+        .template-type-selection, .categories-selection {
+            background-color: #f8f9fa;
+            border-radius: 0.25rem;
+            padding: 0.75rem;
+        }
+
+        .product-selection-container.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
+}

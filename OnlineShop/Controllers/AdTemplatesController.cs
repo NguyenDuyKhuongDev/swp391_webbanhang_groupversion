@@ -24,6 +24,7 @@ namespace OnlineShop.Controllers
         {
             var adTemplates = await _context.AdTemplates.Include(a => a.AdTemplatePositions).ToListAsync();
             ViewData["AdPositions"] = await _context.AdPositions.ToListAsync();
+            ViewData["TemplateTypes"] = await _context.AdTemplateTypes.ToListAsync();
             return _context.AdTemplates != null ?
             View(adTemplates) :
             Problem("Entity set 'ApplicationDbContext.AdTemplates'  is null.");
@@ -48,9 +49,10 @@ namespace OnlineShop.Controllers
         }
 
         // GET: AdTemplates/Create
-        public IActionResult Create()
+        public  IActionResult Create()
         {
-            ViewData["AdPositions"] = _context.AdPositions.ToList();
+            ViewData["AdPositions"] =  _context.AdPositions.ToList();
+            ViewData["TemplateTypes"] =  _context.AdTemplateTypes.ToList();
             return View();
         }
 
@@ -59,7 +61,7 @@ namespace OnlineShop.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,HtmlTemplate,PreviewImageUrl,IsActive")] AdTemplate adTemplate, List<int>? SelectedPositionIds)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,HtmlTemplate,PreviewImageUrl,IsActive")] AdTemplate adTemplate, List<int>? SelectedPositionIds,string TypeId)
         {
             if (ModelState.IsValid)
             {
@@ -70,6 +72,7 @@ namespace OnlineShop.Controllers
                 }
 
                 adTemplate.CreatedAt = DateTime.Now;
+                adTemplate.TypeId = int.Parse(TypeId);
                 _context.Add(adTemplate);
                 await _context.SaveChangesAsync();
 
@@ -85,6 +88,7 @@ namespace OnlineShop.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["AdPositions"] = _context.AdPositions.ToList();
+            ViewData["TemplateTypes"] = _context.AdTemplateTypes.ToList();
             return View(adTemplate);
         }
 
@@ -97,6 +101,9 @@ namespace OnlineShop.Controllers
             }
             ViewData["AdTemplatePositions"]  =await _context.AdTemplatePositions.Where(a => a.AdTemplateId == id).Select(a => a.PositionId).ToListAsync();
             ViewData["AdPositions"] = _context.AdPositions.ToList();
+            ViewData["TemplateTypes"] = _context.AdTemplateTypes.ToList();
+           
+
             var adTemplate = await _context.AdTemplates.FindAsync(id);
             if (adTemplate == null)
             {
@@ -110,7 +117,7 @@ namespace OnlineShop.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,HtmlTemplate,PreviewImageUrl,IsActive")] AdTemplate adTemplate, List<int> SelectedPositionIds)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,HtmlTemplate,PreviewImageUrl,IsActive")] AdTemplate adTemplate, List<int> SelectedPositionIds,string TypeId)
         {
             if (id != adTemplate.Id)
             {
@@ -131,6 +138,7 @@ namespace OnlineShop.Controllers
                         AdTemplateId = id
                     }
                     ));
+                    adTemplate.TypeId = int.Parse(TypeId);
                     _context.Update(adTemplate);
                     await _context.SaveChangesAsync();
                 }

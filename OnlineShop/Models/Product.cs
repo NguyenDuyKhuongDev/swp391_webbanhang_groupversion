@@ -40,6 +40,7 @@ namespace OnlineShop.Models
         public virtual CategoryProduct? CategoryProduct { get; set; }
         public virtual ICollection<ProductSize> ProductSizes { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+        public virtual ICollection<AdProducts> AdProducts { get; set; }
         public Product()
         {
             ProductSizes = new List<ProductSize>();

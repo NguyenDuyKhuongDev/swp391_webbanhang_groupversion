@@ -48,6 +48,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="AdTemplates" asp-action="Index">AdTemplate</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="AdTemplateTypes" asp-action="Index">AdTemplateType</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Advertisements" asp-action="Index">Advertisement</a>
+                        </li>
                         @if (User.Identity.IsAuthenticated)
                         {
                             if (User.IsInRole("Customer"))

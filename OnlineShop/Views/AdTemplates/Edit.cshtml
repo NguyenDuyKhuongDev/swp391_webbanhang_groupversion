@@ -4,7 +4,11 @@
     var positions = ViewBag.AdPositions as List<AdPosition> ?? new List<AdPosition>();
     var positionList = new SelectList(positions, "Id", "Name");
     var selectedPositions = ViewBag.AdTemplatePositions as List<int> ?? new List<int>();
-    var a = 1;
+
+    // Thêm phần này cho Template Type
+    var templateTypes = ViewBag.TemplateTypes as List<AdTemplateType> ?? new List<AdTemplateType>();
+    var templateTypeList = new SelectList(templateTypes, "Id", "Name");
+    var selectedTemplateType = Model.TypeId; // Lấy TypeId từ model
 }
 
 <div class="container-fluid px-4">
@@ -72,6 +76,26 @@
                         </div>
                     </div>
 
+                    <!-- Thêm card chọn kiểu template -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h6 class="mb-0">
+                                <i class="fas fa-tag me-2"></i>Loại Template
+                            </h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label asp-for="TypeId" class="form-label fw-bold">
+                                    <i class="fas fa-tags me-2 text-muted"></i>Chọn kiểu template
+                                </label>
+                                <select asp-for="TypeId" asp-items="templateTypeList" class="form-select template-type-select">
+                                    <option value="">-- Chọn kiểu template --</option>
+                                </select>
+                                <span asp-validation-for="TypeId" class="text-danger small"></span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card border-0 shadow-sm mb-4">
                         <div class="card-header bg-light">
                             <h6 class="mb-0">
@@ -131,6 +155,7 @@
 
 @section Styles {
     <style>
+        /* CSS cho position-select */
         .position-select {
             min-height: 160px;
             border: 1px solid #ced4da;
@@ -146,29 +171,39 @@
                 border-radius: 6px;
                 cursor: pointer;
                 transition: all 0.2s ease;
-                background-color: #e7f5ff; /* Màu mặc định */
+                background-color: #e7f5ff;
                 color: #1c7ed6;
             }
 
-                /* Style cho các position đã được chọn từ template */
                 .position-select option[selected] {
                     background-color: #d3f9d8 !important;
                     color: #2b8a3e !important;
                     font-weight: bold;
                 }
 
-                /* Style khi option được chọn (khi người dùng click) */
                 .position-select option:checked {
                     background-color: #d3f9d8 !important;
                     color: #2b8a3e !important;
                     font-weight: bold;
                 }
 
-                /* Hover effect */
                 .position-select option:hover {
                     transform: translateX(5px);
                     background-color: #dee2e6;
                 }
+
+        /* CSS cho template-type-select */
+        .template-type-select {
+            height: 46px;
+            border-radius: 0.25rem;
+            border: 1px solid #ced4da;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+            .template-type-select:focus {
+                border-color: #86b7fe;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            }
     </style>
 }
 
@@ -176,5 +211,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <!-- Không cần JavaScript nữa -->
 }

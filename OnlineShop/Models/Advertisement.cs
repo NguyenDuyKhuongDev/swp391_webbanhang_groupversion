@@ -9,7 +9,6 @@ public partial class Advertisement
 
     public string? Title { get; set; }
 
-    public string? AdHtmlContent { get; set; }
 
     public string? ImageUrl { get; set; }
 
@@ -27,13 +26,13 @@ public partial class Advertisement
 
     public int? AdTemplateId { get; set; }
 
-    public bool? IsCustomHtml { get; set; }
-
+ 
     public virtual ICollection<AdCategory> AdCategories { get; set; } = new List<AdCategory>();
 
     public virtual ICollection<AdClickLog> AdClickLogs { get; set; } = new List<AdClickLog>();
 
     public virtual ICollection<AdPlacement> AdPlacements { get; set; } = new List<AdPlacement>();
+    public virtual ICollection<AdProducts> AdProducts { get; set; } = new List<AdProducts>(); 
 
     public virtual AdTemplate? AdTemplate { get; set; }
 }
