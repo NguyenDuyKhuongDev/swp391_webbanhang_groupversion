@@ -1,0 +1,66 @@
+﻿@model List<OnlineShop.Models.Feedback>
+
+@{
+    Layout = "~/Views/Shared/_LayoutEmployee.cshtml";
+    ViewData["Title"] = "Quản lý bình luận";
+}
+
+<h2>Quản lý bình luận</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (Model == null || !Model.Any())
+{
+    <p class="text-muted">Chưa có bình luận nào.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Mã sản phảm</th>
+                <th>Tên sản phẩm</th>
+                <th>Khách hàng</th>
+                <th>Bình luận</th>
+                <th>Ngày bình luận</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var comment in Model)
+            {
+                <tr>
+                    <td>@comment.CommentID</td>
+                    <td>@comment.ProductID</td>
+                    <td>@comment.Product.ProductName</td>
+                    <td>@comment.CustomerName</td>
+                    <td>@comment.CommentText</td>
+                    <td>@comment.CommentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        <a asp-action="EditComment" asp-controller="Feedback" asp-route-id="@comment.CommentID" class="btn btn-sm btn-warning">Sửa</a>
+                        <form asp-action="DeleteComment" asp-controller="Feedback" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa bình luận này?');">
+                            <input type="hidden" name="id" value="@comment.CommentID" />
+                            <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Styles {
+    <style>
+        .table th, .table td {
+            vertical-align: middle;
+        }
+    </style>
+}

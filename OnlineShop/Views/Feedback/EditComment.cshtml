@@ -1,0 +1,41 @@
+﻿@model OnlineShop.Models.Feedback
+
+@{
+    Layout = "~/Views/Shared/_LayoutEmployee.cshtml";
+    ViewData["Title"] = "Chỉnh sửa bình luận";
+}
+
+<h2>Chỉnh sửa bình luận</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<form asp-action="EditComment" asp-controller="Feedback" method="post">
+    <input type="hidden" asp-for="CommentID" />
+    <input type="hidden" asp-for="ProductID" />
+    <input type="hidden" asp-for="ProductID" />
+    <input type="hidden" asp-for="CustomerID" />
+    <input type="hidden" asp-for="CustomerName" />
+    <input type="hidden" asp-for="CommentDate" />
+
+    <div class="form-group">
+        <label>Tên sản phẩm</label>
+        <input class="form-control" value="@Model.Product.ProductName" readonly />
+    </div>
+    <div class="form-group">
+        <label>Khách hàng</label>
+        <input class="form-control" value="@Model.CustomerName" readonly />
+    </div>
+    <div class="form-group">
+        <label>Nội dung bình luận</label>
+        <textarea asp-for="CommentText" class="form-control" rows="3" required></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+    <a asp-action="ManageComments" asp-controller="Feedback" class="btn btn-secondary">Quay lại</a>
+</form>

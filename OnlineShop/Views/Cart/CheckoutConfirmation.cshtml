@@ -1,0 +1,156 @@
+﻿@model OnlineShop.ViewModel.CheckoutConfirmationViewModel
+
+@{
+    ViewData["Title"] = "Xác nhận đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <h2 class="text-center mb-4" style="color: red">XÁC NHẬN THANH TOÁN</h2>
+
+    <!-- Thông tin giao hàng -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5>Địa chỉ</h5>
+            <a href="@Url.Action("AddAddress", "Address")" class="btn btn-sm btn-danger">Thêm Địa Chỉ Mới</a>
+        </div>
+        <div class="card-body">
+            @if (Model.Addresses.Any())
+            {
+                <div id="addressSelection">
+                    @foreach (var address in Model.Addresses)
+                    {
+                        <div class="mb-3 p-3 border rounded address-item @(address.Id == Model.SelectedAddressId || (Model.SelectedAddressId == null && address.IsDefault) ? "border-primary" : "")" data-address-id="@address.Id">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="selectedAddressId" id="address_@address.Id" value="@address.Id" @(address.Id == Model.SelectedAddressId || (Model.SelectedAddressId == null && address.IsDefault) ? "checked" : "") required>
+                                <label class="form-check-label" for="address_@address.Id">
+                                    <strong>@(address.IsDefault ? "Mặc định: " : "")</strong>
+                                    <span>@address.FullName | @address.PhoneNumber</span><br />
+                                    <span>@address.AddressDetail, @address.Ward, @address.District, @address.Province</span>
+                                </label>
+                                <div class="float-end">
+                                    <a href="@Url.Action("EditAddress", "Address", new { id = address.Id })" class="btn btn-sm btn-link">Sửa</a>
+                                    <!-- Sử dụng form thay vì thẻ <a> -->
+                                    <form asp-action="DeleteAddress" asp-controller="Address" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa địa chỉ này không?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@address.Id" />
+                                        <button type="submit" class="btn btn-sm btn-link text-danger delete-address">Xóa</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="text-warning">Bạn chưa có địa chỉ nào. Vui lòng thêm địa chỉ để tiếp tục.</p>
+                <a href="@Url.Action("AddAddress", "Address")" class="btn btn-danger">Thêm địa chỉ</a>
+            }
+        </div>
+    </div>
+
+    <!-- Danh sách sản phẩm -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Sản phẩm</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Hình ảnh</th>
+                        <th>Giá (VNĐ)</th>
+                        <th>Số lượng</th>
+                        <th>Tổng (VNĐ)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.CartItems)
+                    {
+                        <tr>
+                            <td>@item.ProductName</td>
+                            <td><img src="@item.ImageUrl" alt="@item.ProductName" style="width: 50px;" /></td>
+                            <td>@item.UnitPrice.ToString("C", new System.Globalization.CultureInfo("vi-VN"))</td>
+                            <td>@item.Quantity</td>
+                            <td>@item.TotalPrice.ToString("C", new System.Globalization.CultureInfo("vi-VN"))</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-right"><strong>Tổng tiền:</strong></td>
+                        <td>@Model.TotalAmount.ToString("C", new System.Globalization.CultureInfo("vi-VN"))</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- Thông báo và nút hành động -->
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div class="alert @(Model.IsSuccess ? "alert-success" : "alert-danger")" role="alert">
+            @Model.Message
+        </div>
+    }
+
+    <div class="text-center">
+        <a href="@Url.Action("CartDetail", "Cart")" class="btn btn-secondary">Quay lại</a>
+        @if (Model.Addresses.Any() && Model.SelectedAddressId.HasValue)
+        {
+            <form asp-action="Checkout" method="post" class="d-inline">
+                <input type="hidden" name="selectedAddressId" id="selectedAddressInput" value="@Model.SelectedAddressId" />
+                <button type="submit" class="btn btn-primary">Xác nhận và thanh toán</button>
+            </form>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Khi người dùng thay đổi lựa chọn địa chỉ
+            $('input[name="selectedAddressId"]').change(function () {
+                var selectedAddressId = $(this).val();
+                $('#selectedAddressInput').val(selectedAddressId);
+
+                // Xóa viền xanh của tất cả các địa chỉ
+                $('.address-item').removeClass('border-primary');
+
+                // Thêm viền xanh cho địa chỉ được chọn
+                $(`.address-item[data-address-id="${selectedAddressId}"]`).addClass('border-primary');
+
+                // Gửi AJAX để cập nhật session mà không cần tải lại trang
+                $.ajax({
+                    url: '@Url.Action("SelectAddress", "Cart")',
+                    type: 'POST',
+                    data: {
+                        selectedAddressId: selectedAddressId,
+                        returnUrl: '@Url.Action("CheckoutConfirmation", "Cart")'
+                    },
+                    success: function (response) {
+                        console.log('Địa chỉ đã được chọn: ' + selectedAddressId);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Lỗi khi chọn địa chỉ: ' + error);
+                    }
+                });
+            });
+
+            // Đảm bảo địa chỉ mặc định hoặc địa chỉ đã chọn có viền xanh khi tải trang
+            var selectedAddressId = '@Model.SelectedAddressId';
+            if (selectedAddressId) {
+                $(`.address-item[data-address-id="${selectedAddressId}"]`).addClass('border-primary');
+            } else {
+                var defaultAddress = $('input[name="selectedAddressId"][data-is-default="true"]:first');
+                if (defaultAddress.length > 0) {
+                    defaultAddress.prop('checked', true);
+                    $('#selectedAddressInput').val(defaultAddress.val());
+                    $(`.address-item[data-address-id="${defaultAddress.val()}"]`).addClass('border-primary');
+                }
+            }
+        });
+    </script>
+}

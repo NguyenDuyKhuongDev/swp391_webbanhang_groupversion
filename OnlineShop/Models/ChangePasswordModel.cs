@@ -4,23 +4,23 @@ namespace OnlineShop.Models
 {
     public class ChangePasswordModel
     {
-        [Required(ErrorMessage = "Password is required")]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 8)]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).*$",
-            ErrorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.")]
+        [Required(ErrorMessage = "Mật khẩu hiện tại không được để trống.")]
         [DataType(DataType.Password)]
+        [Display(Name = "Mật khẩu hiện tại")]
         public string Password { get; set; }
 
-        [Required(ErrorMessage = "New password is required")]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 8)]
+        [Required(ErrorMessage = "Mật khẩu mới không được để trống.")]
+        [StringLength(100, ErrorMessage = "Mật khẩu phải chứa ít nhất {2} ký tự.", MinimumLength = 8)]
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).*$",
-            ErrorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.")]
+            ErrorMessage = "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ cái viết thường, một chữ số và một ký tự đặc biệt.")]
         [DataType(DataType.Password)]
+        [Display(Name = "Mật khẩu mới")]
         public string NewPassword { get; set; }
 
+        [Required(ErrorMessage = "Vui lòng nhập mật khẩu xác nhận.")]
+        [Compare("NewPassword", ErrorMessage = "Mật khẩu mới và mật khẩu xác nhận không khớp.")]
         [DataType(DataType.Password)]
-        [Display(Name = "Confirm password")]
-        [Compare("NewPassword", ErrorMessage = "The new password and confirmation password do not match.")]
+        [Display(Name = "Xác nhận mật khẩu mới")]
         public string ConfirmPassword { get; set; }
     }
 }

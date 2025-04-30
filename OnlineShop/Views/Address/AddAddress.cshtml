@@ -1,0 +1,89 @@
+﻿@model OnlineShop.ViewModel.UserAddressViewModel
+@{
+    ViewData["Title"] = "Add Address";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Thêm địa chỉ mới</h2>
+
+    @if (TempData["Message"] != null)
+    {
+        <div id="statusMessage" class="alert @(TempData["IsSuccess"]?.ToString() == "true" ? "alert-success" : "alert-danger")">
+            @TempData["Message"]
+            <button type="button" class="btn-close float-end" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <form asp-action="AddAddress" asp-controller="Address" method="post">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Thông tin địa chỉ</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Province" class="control-label required">Tỉnh/Thành phố</label>
+                            <select id="tinh1" class="form-select" data-address-type="province">
+                                <option value="0">Tỉnh/Thành phố</option>
+                            </select>
+                            <input type="hidden" asp-for="Province" id="currentProvinceName">
+                            <span asp-validation-for="Province" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="District" class="control-label required">Huyện</label>
+                            <select id="quan1" class="form-select" data-address-type="district">
+                                <option value="0">Huyện</option>
+                            </select>
+                            <input type="hidden" asp-for="District" id="currentDistrictName">
+                            <span asp-validation-for="District" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label asp-for="Ward" class="control-label required">Xã</label>
+                            <select id="phuong1" class="form-select" data-address-type="ward">
+                                <option value="0">Xã</option>
+                            </select>
+                            <input type="hidden" asp-for="Ward" id="currentWardName">
+                            <span asp-validation-for="Ward" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="AddressDetail" class="control-label required">Địa chỉ chi tiết</label>
+                    <textarea asp-for="AddressDetail" class="form-control" rows="2"
+                              placeholder="Nhập số nhà, tên đường,..."></textarea>
+                    <span asp-validation-for="AddressDetail" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mt-3">
+                    <div class="form-check">
+                        <input asp-for="IsDefault" class="form-check-input" id="isDefault" />
+                        <label asp-for="IsDefault" class="form-check-label">Đặt làm địa chỉ mặc định</label>
+                        <span asp-validation-for="IsDefault" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">Thêm địa chỉ</button>
+            <a asp-action="CheckoutConfirmation" asp-controller="Cart" class="btn btn-outline-secondary ms-2">Hủy</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/addressSelection.js" asp-append-version="true"></script>
+}

@@ -14,7 +14,7 @@ public partial class AdPosition
     public string? Description { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; } = false;
   
 
     public virtual ICollection<AdPlacement> AdPlacements { get; set; } = new List<AdPlacement>();

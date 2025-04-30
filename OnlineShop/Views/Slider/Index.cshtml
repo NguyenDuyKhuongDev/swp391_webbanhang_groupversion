@@ -1,0 +1,213 @@
+﻿@using System.Linq
+@model IEnumerable<OnlineShop.Models.Slider>
+@{
+    Layout = "~/Views/Shared/_LayoutEmployee.cshtml";
+    ViewData["Title"] = "Danh sách Slider";
+}
+
+<style>
+    h2 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert {
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .alert-success {
+        background-color: #e7f3e9;
+        color: #2e7d32;
+        border-color: #c8e6c9;
+    }
+
+    .alert-danger {
+        background-color: #ffebee;
+        color: #d32f2f;
+        border-color: #ffcdd2;
+    }
+
+    .btn-primary {
+        background-color: #1976d2;
+        border-color: #1976d2;
+        border-radius: 6px;
+        padding: 8px 16px;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: #1565c0;
+            border-color: #1565c0;
+        }
+
+    .table {
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        background-color: #fff;
+    }
+
+        .table thead th {
+            background-color: #34495e;
+            color: #fff;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            padding: 12px;
+            border: none;
+        }
+
+        .table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+            .table tbody tr:hover {
+                background-color: #f8f9fa;
+            }
+
+        .table td {
+            vertical-align: middle;
+            padding: 12px;
+            font-size: 0.9rem;
+            color: #424242;
+        }
+
+        .table img {
+            width: 80px;
+            height: auto;
+            border-radius: 6px;
+            object-fit: cover;
+            border: 1px solid #e0e0e0;
+        }
+
+        .table a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+            .table a:hover {
+                text-decoration: underline;
+            }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        border-radius: 4px;
+        transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+
+    .btn-warning {
+        background-color: #ffb300;
+        border-color: #ffb300;
+        color: #fff;
+    }
+
+        .btn-warning:hover {
+            background-color: #ffca28;
+            border-color: #ffca28;
+            transform: translateY(-1px);
+        }
+
+    .btn-danger {
+        background-color: #e53935;
+        border-color: #e53935;
+    }
+
+        .btn-danger:hover {
+            background-color: #d81b60;
+            border-color: #d81b60;
+            transform: translateY(-1px);
+        }
+
+    .no-data {
+        text-align: center;
+        color: #757575;
+        font-style: italic;
+        padding: 20px;
+        background-color: #f5f5f5;
+        border-radius: 6px;
+        margin-top: 1rem;
+    }
+</style>
+
+<h2>Danh sách Slider</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Thêm Slider Mới</a>
+</p>
+
+@if (!Model.Any())
+{
+    <p class="no-data">Không có slider nào trong hệ thống.</p>
+}
+else
+{
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Hình ảnh</th>
+                <th>Tiêu đề</th>
+                <th>Mô tả</th>
+                <th>Liên kết</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var slider in Model)
+            {
+                <tr>
+                    <td>
+                        <img src="@slider.ImageUrl" alt="@slider.Title" onerror="this.src='https://via.placeholder.com/80?text=Slider+Image'" />
+                    </td>
+                    <td>@slider.Title</td>
+                    <td>@slider.Description</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(slider.Link))
+                        {
+                            <a href="@slider.Link" target="_blank">Xem liên kết</a>
+                        }
+                        else
+                        {
+                            <span>Không có liên kết</span>
+                        }
+                    </td>
+                    <td>@(slider.IsActive ? "Active" : "Inactive")</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@slider.Id" class="btn btn-sm btn-warning">Chỉnh sửa</a>
+                        <form asp-action="Delete" asp-route-id="@slider.Id" method="post" style="display:inline;"
+                              onsubmit="return confirm('Bạn có chắc chắn muốn xóa slider này?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

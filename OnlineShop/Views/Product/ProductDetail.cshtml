@@ -2,7 +2,7 @@
 @using System.Text.Encodings.Web
 @{
     ViewData["Title"] = "Chi Tiết Sản Phẩm";
-    Layout = "_Layout";
+    Layout = "~/Views/Shared/_LayoutEmployee.cshtml";
 }
 
 @section Styles {
@@ -118,7 +118,7 @@
 
         <div class="form-group mt-3">
             <label for="ProductImageFile">Tải hình ảnh mới cho sản phẩm</label>
-            <input type="file" name="ProductImageFile" class="form-control-file" accept=".jpg,.jpeg,.png,.gif,.webp" />
+            <input type="file" name="ProductImageFile" class="form-control-file" accept=".jpg,.jpeg,.png,.gif" />
             <span class="text-danger" asp-validation-for="ProductImage"></span>
         </div>
 
@@ -135,29 +135,29 @@
         @if (TempData["SuccessMessage"] != null)
         {
             <text>
-                showNotification('@JavaScriptEncoder.Default.Encode(TempData["SuccessMessage"].ToString())', 'success');
+                            showNotification('@JavaScriptEncoder.Default.Encode(TempData["SuccessMessage"].ToString())', 'success');
             </text>
         }
         @if (TempData["ErrorMessage"] != null)
         {
             <text>
-                showNotification('@JavaScriptEncoder.Default.Encode(TempData["ErrorMessage"].ToString())', 'error');
+                            showNotification('@JavaScriptEncoder.Default.Encode(TempData["ErrorMessage"].ToString())', 'error');
             </text>
         }
-            // Hàm để hiển thị thông báo
-            function showNotification(message, type) {
-                var notification = document.getElementById("notification");
-                notification.innerText = message;
-                notification.classList.add(type); // Thêm class success hoặc error để đổi màu
+        // Hàm để hiển thị thông báo
+        function showNotification(message, type) {
+            var notification = document.getElementById("notification");
+            notification.innerText = message;
+            notification.classList.add(type); // Thêm class success hoặc error để đổi màu
 
-                // Hiển thị notification
-                notification.style.display = 'block';
+            // Hiển thị notification
+            notification.style.display = 'block';
 
-                // Ẩn notification sau 2s
-                setTimeout(function () {
-                    notification.style.display = 'none';
-                }, 2000);
-            }
+            // Ẩn notification sau 2s
+            setTimeout(function () {
+                notification.style.display = 'none';
+            }, 2000);
+        }
 
 
         function confirmDelete() {
@@ -212,4 +212,3 @@
         });
     </script>
 }
-

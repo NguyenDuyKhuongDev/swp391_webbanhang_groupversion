@@ -4,17 +4,17 @@ namespace OnlineShop.Models
 {
     public class RegisterModel
     {
-        [Required(ErrorMessage = "User Name is required")]
+        [Required(ErrorMessage = "Tên đăng nhập không được để trống.")]
         public string? Username { get; set; }
 
-        [EmailAddress]
-        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Email không hợp lệ.")]
+        [Required(ErrorMessage = "Email không được để trống.")]
         public string? Email { get; set; }
 
-        [Required(ErrorMessage = "Password is required")]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 8)]
+        [Required(ErrorMessage = "Mật khẩu không được để trống.")]
+        [StringLength(100, ErrorMessage = "Mật khẩu phải chứa ít nhất {2} ký tự.", MinimumLength = 8)]
         [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).*$",
-            ErrorMessage = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character.")]
+            ErrorMessage = "Mật khẩu phải chứa ít nhất một chữ cái viết hoa, một chữ cái viết thường, một chữ số và một ký tự đặc biệt.")]
         public string? Password { get; set; }
     }
 }

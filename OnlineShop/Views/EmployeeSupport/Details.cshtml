@@ -5,14 +5,14 @@
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
             <div class="d-flex justify-content-between align-items-center">
-                <h4 class="mb-0">Ticket #@Model.Id: @Model.Subject</h4>
+                <h4 class="mb-0">Yêu cầu #@Model.Id: @Model.Subject</h4>
                 <div>
                     <form asp-action="UpdateStatus" method="post" class="d-inline-block me-2">
                         <input type="hidden" name="id" value="@Model.Id" />
                         <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
-                            <option value="Open" selected="@(Model.Status == "Open")">Open</option>
-                            <option value="In Progress" selected="@(Model.Status == "In Progress")">In Progress</option>
-                            <option value="Closed" selected="@(Model.Status == "Closed")">Closed</option>
+                            <option value="Open" selected="@(Model.Status == "Open")">Mở</option>
+                            <option value="In Progress" selected="@(Model.Status == "In Progress")">Đang xử lý</option>
+                            <option value="Closed" selected="@(Model.Status == "Closed")">Đã đóng</option>
                         </select>
                     </form>
                     <span class="badge bg-@(Model.Status switch {
@@ -26,23 +26,23 @@
         </div>
         <div class="card-body">
             <div class="mb-4">
-                <h5>Customer Information</h5>
+                <h5>Thông tin khách hàng</h5>
                 <p><strong>Email:</strong> @Model.User.Email</p>
-                <p><strong>Created:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                <p><strong>Ngày tạo:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
             </div>
 
             <div class="mb-4">
-                <h5>Description</h5>
+                <h5>Mô tả</h5>
                 <p class="border rounded p-3 bg-light">@Model.Description</p>
             </div>
 
-            <h5>Conversation</h5>
+            <h5>Hội thoại</h5>
             <div class="conversation-area mb-4">
                 @foreach (var reply in Model.Replies.OrderBy(r => r.CreatedAt))
                 {
                     <div class="card mb-3 @(reply.UserId == Model.UserId ? "border-primary" : "border-success")">
                         <div class="card-header bg-light">
-                            <strong>@(reply.UserId == Model.UserId ? "Customer" : "Support Staff")</strong>
+                            <strong>@(reply.UserId == Model.UserId ? "Khách hàng" : "Nhân viên hỗ trợ")</strong>
                             <small class="text-muted float-end">@reply.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
                         </div>
                         <div class="card-body">
@@ -57,13 +57,13 @@
                 <form asp-action="Reply" method="post">
                     <input type="hidden" name="ticketId" value="@Model.Id" />
                     <div class="mb-3">
-                        <label class="form-label">Reply to Customer</label>
+                        <label class="form-label">Phản hồi khách hàng</label>
                         <textarea name="message" class="form-control" rows="3" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Send Reply</button>
+                    <button type="submit" class="btn btn-primary">Gửi phản hồi</button>
                 </form>
             }
         </div>
     </div>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    <a asp-action="Index" class="btn btn-secondary">Quay lại danh sách</a>
 </div>

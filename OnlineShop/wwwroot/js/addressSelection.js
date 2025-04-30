@@ -69,19 +69,19 @@ $(document).ready(function () {
 
             // Show error messages if needed
             if (!isProvinceSelected) {
-                $("[data-valmsg-for='Province']").text("Province/City is required");
+                $("[data-valmsg-for='Province']").text("Tỉnh/Thành phố là bắt buộc");
             }
 
             if (!isDistrictSelected) {
-                $("[data-valmsg-for='District']").text("District is required");
+                $("[data-valmsg-for='District']").text("Quận/Huyện là bắt buộc");
             }
 
             if (!isWardSelected) {
-                $("[data-valmsg-for='Ward']").text("Ward/Commune is required");
+                $("[data-valmsg-for='Ward']").text("Phường/Xã là bắt buộc");
             }
 
             if (!hasAddressDetail) {
-                $("[data-valmsg-for='AddressDetail']").text("Detailed address is required");
+                $("[data-valmsg-for='AddressDetail']").text("Địa chỉ chỉ tiết là bắt buộc");
             }
 
             // Update hidden fields with correct values

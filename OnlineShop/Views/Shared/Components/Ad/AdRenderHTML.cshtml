@@ -1,0 +1,44 @@
+﻿@using System.Web
+@model string
+
+
+<!-- Phần CSS riêng cho quảng cáo -->
+<style>
+    .ad-banner-container {
+        margin: 0 auto;
+        overflow: hidden;
+        border-radius: 8px;
+        transition: transform 0.3s ease;
+    }
+
+    .ad-banner-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: fill;
+        display: block;
+    }
+
+    .ad-banner-container:hover {
+        transform: scale(1.02);
+    }
+</style>
+
+<!-- HTML quảng cáo được render từ DB -->
+<div class="ad-render-wrapper">
+    @Html.Raw(HttpUtility.HtmlDecode(Model))
+</div>
+
+<!-- JavaScript riêng cho quảng cáo (nếu cần) -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Ví dụ: tracking click hoặc hiệu ứng
+        document.querySelectorAll('.ad-banner-container a').forEach(el => {
+            el.addEventListener('click', () => {
+                console.log("Ad clicked!");
+                // Bạn có thể gọi API để log click ở đây
+            });
+        });
+    });
+</script>
+
+

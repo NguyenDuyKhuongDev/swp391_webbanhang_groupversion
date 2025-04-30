@@ -4,9 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Data;
 using OnlineShop.Models;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace OnlineShop.Controllers
 {
@@ -26,18 +23,18 @@ namespace OnlineShop.Controllers
         public async Task<IActionResult> MyOrders(OrderFilterModel filter)
         {
             var user = await _userManager.GetUserAsync(User);
-            
+
             var query = _context.Orders
-                .Include(o => o.OrderDetails)
+                .Include(o => o.OrderItems)
                 .Where(o => o.UserId == user.Id)
                 .AsQueryable();
 
             // Apply filters
             if (filter.FromDate.HasValue)
-                query = query.Where(o => o.OrderDate >= filter.FromDate.Value);
+                query = query.Where(o => o.CreatedDate >= filter.FromDate.Value);
 
             if (filter.ToDate.HasValue)
-                query = query.Where(o => o.OrderDate <= filter.ToDate.Value);
+                query = query.Where(o => o.CreatedDate <= filter.ToDate.Value);
 
             if (!string.IsNullOrEmpty(filter.Status))
                 query = query.Where(o => o.Status == filter.Status);
@@ -46,7 +43,7 @@ namespace OnlineShop.Controllers
             filter.TotalItems = await query.CountAsync();
 
             var orders = await query
-                .OrderByDescending(o => o.OrderDate)
+                .OrderByDescending(o => o.CreatedDate)
                 .Skip((filter.PageNumber - 1) * filter.PageSize)
                 .Take(filter.PageSize)
                 .ToListAsync();
@@ -63,8 +60,8 @@ namespace OnlineShop.Controllers
             var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
 
             var order = await _context.Orders
-                .Include(o => o.OrderDetails)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(m => m.OrderId == id.ToString());
 
             if (order == null)
                 return NotFound();

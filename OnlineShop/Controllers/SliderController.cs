@@ -61,14 +61,9 @@ namespace OnlineShop.Controllers
 
             slider.ImageUrl = imageUrl;
 
-
             await _sliderDAO.AddSliderAsync(slider);
             TempData["SuccessMessage"] = "Thêm slider thành công!";
-            return RedirectToAction("Index", "Home");
-
-
-            //await CloudinaryHelper.DeleteImageFromCloudinaryAsync(_cloudinaryService, imageUrl);
-            //return View(slider);
+            return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -135,19 +130,17 @@ namespace OnlineShop.Controllers
             return View(slider);
         }
 
+        [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var slider = await _sliderDAO.GetSliderByIdAsync(id);
-            if (slider == null)
+            // Kiểm tra số lượng slider hiện tại
+            var sliders = await _sliderDAO.GetAllSlidersAsync();
+            if (sliders.Count <= 1)
             {
-                return NotFound();
+                TempData["ErrorMessage"] = "Hệ thống phải có ít nhất 1 slider, bạn không thể xóa.";
+                return RedirectToAction(nameof(Index));
             }
-            return View(slider);
-        }
 
-        [HttpPost, ActionName("Delete")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
             var slider = await _sliderDAO.GetSliderByIdAsync(id);
             if (slider == null)
             {

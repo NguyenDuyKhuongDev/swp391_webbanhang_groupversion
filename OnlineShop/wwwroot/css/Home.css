@@ -1,5 +1,5 @@
 ﻿.product-card {
-    height: 350px; /* Giảm chiều cao card */
+    min-height: 350px; /* Đổi height thành min-height để card có thể mở rộng nếu cần */
     display: flex;
     flex-direction: column;
     transition: all 0.3s ease; /* Hiệu ứng hover */
@@ -11,8 +11,11 @@
     }
 
 .product-image {
-    height: 150px; /* Giảm chiều cao hình ảnh */
-    object-fit: cover; /* Đảm bảo hình ảnh không bị méo */
+    width: 100%; /* Đảm bảo chiều rộng đầy đủ */
+    height: auto; /* Bỏ max-height, để chiều cao tự động theo tỷ lệ ảnh */
+    max-height: 200px; /* Tăng giới hạn max-height để ảnh có không gian hiển thị */
+    object-fit: contain; /* Hiển thị toàn bộ hình ảnh, không bị cắt */
+    object-position: center; /* Căn giữa hình ảnh */
 }
 
 .card-body {

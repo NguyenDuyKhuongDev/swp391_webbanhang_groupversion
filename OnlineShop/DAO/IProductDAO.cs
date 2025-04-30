@@ -12,5 +12,8 @@ namespace OnlineShop.DAO
         Task<bool> UpdateProductAsync(Product product, Dictionary<int, int> sizeQuantities);
         Task<bool> ToggleProductStatusAsync(int productId);
 
+        Task<ProductSize> GetProductSizeAsync(int productId, int categorySizeId);
+        Task UpdateProductSizeAsync(ProductSize productSize);
+
     }
 }

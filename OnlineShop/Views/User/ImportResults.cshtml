@@ -1,0 +1,86 @@
+﻿@model List<OnlineShop.Models.EmployeeImportResult>
+@{
+    ViewData["Title"] = "Kết quả import nhân viên";
+    Layout = "_AdminLayout";
+    // Layout = "~/Views/Shared/AdminLayout.cshtml";
+    var successCount = ViewBag.SuccessCount ?? 0;
+    var errorCount = Model.Count - (int)successCount;
+}
+
+<div class="container py-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-list-check me-2"></i>Kết quả import nhân viên
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <div class="alert @(successCount > 0 ? "alert-success" : "alert-warning")">
+                    <h6 class="alert-heading"><i class="bi bi-info-circle me-2"></i>Tổng kết:</h6>
+                    <p class="mb-0">Đã import <strong>@successCount/@Model.Count</strong> tài khoản thành công.</p>
+                    @if (errorCount > 0)
+                    {
+                        <p class="mb-0">Có <strong>@errorCount</strong> tài khoản thất bại.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Dòng</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Trạng thái</th>
+                            <th>Chi tiết lỗi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var result in Model)
+                        {
+                            <tr class="@(result.Success ? "table-success" : "table-danger")">
+                                <td>@result.RowNumber</td>
+                                <td>@result.Username</td>
+                                <td>@result.Email</td>
+                                <td>
+                                    @if (result.Success)
+                                    {
+                                        <span class="badge bg-success">Thành công</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Thất bại</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!result.Success && result.Errors != null)
+                                    {
+                                        <ul class="mb-0 ps-3">
+                                            @foreach (var error in result.Errors)
+                                            {
+                                                <li>
+                                                    <strong>@(string.IsNullOrEmpty(error.Key) ? "Lỗi" : error.Key):</strong> @error.Value
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-4 d-flex justify-content-between">
+                <a asp-action="RegisterEmployee" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Quay lại
+                </a>
+                <a asp-action="Employees" class="btn btn-primary">
+                    <i class="bi bi-people me-2"></i>Danh sách nhân viên
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

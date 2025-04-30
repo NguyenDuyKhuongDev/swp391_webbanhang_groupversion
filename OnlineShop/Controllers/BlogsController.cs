@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -20,18 +22,22 @@ namespace OnlineShop.Controllers
         private const int MAX_DISPLAY_PAGES_COMMON_PAGE = 7;
         private readonly ApplicationDbContext _context;
         private List<Blog>? sourceBlog;
-        public BlogsController(ApplicationDbContext context)
+        private UserManager<ApplicationUser> _UserManager;
+        public BlogsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _UserManager = userManager;
         }
 
         // GET: Blogs
+        [Authorize(Roles = "Employee")]
         public async Task<IActionResult> Index(int page = 1)
         {
 
 
             sourceBlog = await _context.Blogs.Include(b => b.Category).Include(b => b.Thumbnail).ToListAsync();
             var totalPage = (int)Math.Ceiling((double)sourceBlog.Count / PAGE_SIZE);
+            ViewData["Users"] = _context.ApplicationUsers.ToList();
             var blogPaging = CommonMethods.Paging(sourceBlog, page, PAGE_SIZE);
             var blogPagingSorted = blogPaging.OrderByDescending(b => b.PublishedDate).ToList();
             ViewData["currentPage"] = page;
@@ -44,6 +50,7 @@ namespace OnlineShop.Controllers
         {
             ViewData["blogCategories"] = await _context.BlogCategories.ToListAsync();
             ViewData["ListTags"] = await _context.Tags.ToListAsync();
+            ViewData["Users"] = _context.ApplicationUsers.ToList();
             var sourceBlog = await _context.Blogs
      .Include(b => b.Category)
      .Include(b => b.Thumbnail)
@@ -69,8 +76,12 @@ namespace OnlineShop.Controllers
 
             ViewData["BlogTags"] = await _context.TagBlogs.Include(t => t.Tag).Where(t => t.BlogId == id).Select(t => t.Tag.Name).ToListAsync();
             var blogContext = _context.Blogs.Include(b => b.Category).Include(b => b.Thumbnail).FirstOrDefault(blog => blog.Id == id);
-            ViewData["BlogAds"] = await _context.Advertisements.Include(ad=>ad.AdPlacements).Where(ad=>ad.AdPlacements.Any(ap=>ap.BlogId==id)&&ad.IsActive).ToListAsync()??new List<Advertisement>();
-            string msg = await UpdateViewCount(id);
+            ViewBag.authorEmail = _context.ApplicationUsers.FirstOrDefault(u => u.Id == blogContext.AuthorId)?.Email;
+
+            ViewData["BlogAds"] = await _context.Advertisements.Include(ad => ad.AdPlacements).Where(ad => ad.AdPlacements.Any(ap => ap.BlogId == id) && ad.IsActive).ToListAsync() ?? new List<Advertisement>();
+            string viewmsg = await UpdateViewCount(id);
+            string likemsg =await UpdateLikeCount(_UserManager.GetUserId(User), id.ToString());
+            ViewData["LikeCounts"] =await _context.LikeOfBlogs.CountAsync(l=>l.BlogId==id);
             return View("BlogPageView", blogContext);
         }
 
@@ -113,6 +124,7 @@ namespace OnlineShop.Controllers
             if (ModelState.IsValid)
             {
                 var publishDate = (blogVM.IsPublished) ? DateTime.Now : (DateTime?)null;
+
                 var blog = new Blog()
                 {
                     Title = blogVM.Title,
@@ -122,6 +134,7 @@ namespace OnlineShop.Controllers
                     Summary = blogVM.Summary,
                     Content = blogVM.Content,
                     PublishedDate = publishDate,
+                    AuthorId = _UserManager.GetUserId(User),
                     CategoryId = blogVM.CategoryId,
                     ThumbnailId = blogVM.ThumbnailId,
                 };
@@ -296,15 +309,18 @@ namespace OnlineShop.Controllers
 
         }
 
-        /*    public async Task<string> UpdateLikeCount(int id) {
-                if (id == null) return "Input is null";
-                var blog = await _context.Blogs.FirstOrDefaultAsync(b => b.Id == id);
-                if (blog == null) return "Blog is null";
-                blog.LikeCount += 1;
-                _context.Blogs.Update(blog);
-                await _context.SaveChangesAsync();
-                return "";
-            }*/
+        public async Task<string> UpdateLikeCount(string userId, string blogId)
+        {
+            if (userId == null) return "Cannot find user ";
+            var user = await _context.Blogs.FirstOrDefaultAsync(b => b.Id.CompareTo(int.Parse(blogId)) == 0 && b.AuthorId == userId);
+            if (blogId == null) return "Blog is null";
+            var blog = await _context.Blogs.FirstOrDefaultAsync(b => b.Id.CompareTo(int.Parse(blogId)) == 0);
+            var blogLike = await _context.LikeOfBlogs.FirstOrDefaultAsync(b => b.BlogId == int.Parse(blogId) && b.UserId == userId);
+            if (blogLike == null) _context.LikeOfBlogs.Add(new LikeOfBlog { BlogId = int.Parse(blogId), UserId = userId });
+            else _context.LikeOfBlogs.Remove(blogLike);
+            await _context.SaveChangesAsync();
+            return "";
+        }
 
         public async Task<string> UpdateViewCount(int id)
         {

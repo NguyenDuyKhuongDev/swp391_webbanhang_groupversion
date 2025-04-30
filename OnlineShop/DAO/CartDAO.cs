@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Data;
 using OnlineShop.Models;
+using OnlineShop.ViewModel;
 using System.Collections.Generic;
 using System.Text.Json;
 
@@ -38,9 +39,9 @@ namespace OnlineShop.DAO
         }
 
         // Ánh xạ từ CartItemEntity sang CartItem
-        private CartItem MapToCartItem(CartItemEntity entity)
+        private CartItemViewModel MapToCartItem(CartItemEntity entity)
         {
-            return new CartItem
+            return new CartItemViewModel
             {
                 Id = entity.CategorySizeId.HasValue ? $"{entity.ProductId}_{entity.CategorySizeId}" : entity.ProductId.ToString(),
                 ProductId = entity.ProductId,
@@ -53,7 +54,7 @@ namespace OnlineShop.DAO
         }
 
         // Ánh xạ từ CartItem sang CartItemEntity
-        private CartItemEntity MapToCartItemEntity(CartItem item, string userId)
+        private CartItemEntity MapToCartItemEntity(CartItemViewModel item, string userId)
         {
             return new CartItemEntity
             {
@@ -67,7 +68,7 @@ namespace OnlineShop.DAO
             };
         }
 
-        public async Task<List<CartItem>> GetCartAsync()
+        public async Task<List<CartItemViewModel>> GetCartAsync()
         {
             if (await IsCustomerAsync())
             {
@@ -84,12 +85,12 @@ namespace OnlineShop.DAO
                 // Lấy giỏ hàng từ session cho Guest
                 var cartJson = Session.GetString($"Cart_{SessionId}");
                 return string.IsNullOrEmpty(cartJson)
-                    ? new List<CartItem>()
-                    : JsonSerializer.Deserialize<List<CartItem>>(cartJson);
+                    ? new List<CartItemViewModel>()
+                    : JsonSerializer.Deserialize<List<CartItemViewModel>>(cartJson);
             }
         }
 
-        public async Task<bool> AddToCartAsync(CartItem item, int productId, int? categorySizeId)
+        public async Task<bool> AddToCartAsync(CartItemViewModel item, int productId, int? categorySizeId)
         {
             // Lấy thông tin sản phẩm từ cơ sở dữ liệu
             var product = await _productDao.GetProductByIdAsync(productId);

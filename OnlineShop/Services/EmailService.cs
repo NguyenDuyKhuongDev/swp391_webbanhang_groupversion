@@ -1,6 +1,6 @@
-using System.Net.Mail;
+using OnlineShop.Models;
 using System.Net;
-using OnlineShop.Data;
+using System.Net.Mail;
 
 namespace OnlineShop.Services
 {
@@ -62,16 +62,16 @@ namespace OnlineShop.Services
                         <h3 style='color: #333; margin-top: 0;'>Order Details</h3>
                         <p><strong>Order ID:</strong> {order.OrderId}</p>
                         <p><strong>Status:</strong> {order.Status}</p>
-                        <p><strong>Order Date:</strong> {order.OrderDate:dd/MM/yyyy HH:mm}</p>
-                        <p><strong>Total Amount:</strong> {order.TotalAmount:C}</p>
+                        <p><strong>Order Date:</strong> {order.CreatedDate:dd/MM/yyyy HH:mm}</p>
+                        <p><strong>Total Amount:</strong> {order.Amount:C}</p>
                     </div>";
 
-            if (order.Status == "Cancelled" && !string.IsNullOrEmpty(order.CancellationReason))
+            if (order.Status == "Cancelled" )
             {
                 body += $@"
                     <div style='background-color: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0;'>
                         <p style='color: #856404; margin: 0;'><strong>Cancellation Reason:</strong></p>
-                        <p style='color: #856404; margin: 10px 0 0 0;'>{order.CancellationReason}</p>
+                        <p style='color: #856404; margin: 10px 0 0 0;'>Cancel order</p>
                     </div>";
             }
 

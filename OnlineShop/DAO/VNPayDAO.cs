@@ -8,7 +8,7 @@ namespace OnlineShop.DAO
         private static readonly string _vnpTmnCode = "P8XP9B1K";
         private static readonly string _vnpHashSecret = "9773CZVDHU81K3SMNBTFXVQVYY4TC73T";
         private static readonly string _vnpUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        private static readonly string _vnpReturnUrl = "https://eee1-42-113-163-139.ngrok-free.app/Cart/Return"; // URL callback từ ngrok
+        private static readonly string _vnpReturnUrl = "http://localhost:5146/Cart/Return";
 
 
         public string CreatePaymentUrl(decimal amount, string orderId, string orderInfo, string ipAddress)

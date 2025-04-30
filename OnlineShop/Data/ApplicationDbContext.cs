@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
+using OnlineShop.Data.Configurations;
 using OnlineShop.Models;
-
 namespace OnlineShop.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
@@ -11,10 +10,16 @@ namespace OnlineShop.Data
         {
         }
 
+        public DbSet<RefundHistory> RefundHistories { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<CategoryProduct> CategoryProducts { get; set; }
         public DbSet<CategorySize> CategorySizes { get; set; }
         public DbSet<ProductSize> ProductSizes { get; set; }
+        //public DbSet<Order> Orders { get; set; }
+        //public DbSet<OrderDetail> OrderDetails { get; set; }
+
+        //public DbSet<OrderDetail> OrderDetails { get; set; }
+
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetail> OrderDetails { get; set; }
         public DbSet<SupportTicket> SupportTickets { get; set; }
@@ -26,6 +31,8 @@ namespace OnlineShop.Data
         public DbSet<Slider> Sliders { get; set; }
 
         public virtual DbSet<AdCategory> AdCategories { get; set; }
+        
+        public virtual DbSet<ApplicationUser> ApplicationUsers { get; set; }
 
         public virtual DbSet<AdClickLog> AdClickLogs { get; set; }
         public virtual DbSet<AdTemplatePosition> AdTemplatePositions { get; set; } // Thêm bảng AdTemplatePosition vào>
@@ -51,6 +58,9 @@ namespace OnlineShop.Data
         public virtual DbSet<TagBlog> TagBlogs { get; set; }
 
         public virtual DbSet<Thumbnail> Thumbnails { get; set; }
+        public DbSet<OrderDetail> OrderItems { get; set; }
+
+        public DbSet<Feedback> Feedbacks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -67,14 +77,14 @@ namespace OnlineShop.Data
                 .HasForeignKey(p => p.CategoryProductId)
                 .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete
 
-            builder.Entity<Product>()
-                .HasMany(p => p.AdProducts)
-                .WithOne(p => p.Product)
-                .HasForeignKey(p => p.ProductId)
-                .HasConstraintName("FK_AdProducts_Products");
-
             builder.Entity<ProductSize>()
                 .HasKey(ps => new { ps.ProductID, ps.CategorySizeID });
+
+            builder.Entity<Product>()
+              .HasMany(p => p.AdProducts)
+              .WithOne(p => p.Product)
+              .HasForeignKey(p => p.ProductId)
+              .HasConstraintName("FK_AdProducts_Products");
 
 
             builder.Entity<ProductSize>()
@@ -143,16 +153,61 @@ namespace OnlineShop.Data
                 .Property(s => s.Id)
                 .ValueGeneratedOnAdd();
 
+            //builder.Entity<Order>()
+            //    .HasMany(o => o.OrderDetails)
+            //    .WithOne(od => od.Order)
+            //    .HasForeignKey(od => od.OrderId)
+            //    .OnDelete(DeleteBehavior.Cascade);
+
+            //builder.Entity<OrderDetail>()
+            //    .HasOne(od => od.Product)
+            //    .WithMany(p => p.OrderDetails)
+            //    .HasForeignKey(od => od.ProductId);
+
+
             builder.Entity<Order>()
-                .HasMany(o => o.OrderDetails)
-                .WithOne(od => od.Order)
+    .HasMany(o => o.OrderItems)
+    .WithOne(od => od.Order)
+    .HasForeignKey(od => od.OrderId)
+    .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<OrderDetail>()
+                .HasOne(od => od.Order)
+                .WithMany(o => o.OrderItems)
                 .HasForeignKey(od => od.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<OrderDetail>()
                 .HasOne(od => od.Product)
                 .WithMany(p => p.OrderDetails)
-                .HasForeignKey(od => od.ProductId);
+                .HasForeignKey(od => od.ProductId)
+                .OnDelete(DeleteBehavior.Restrict); // Hoặc Cascade tùy thuộc vào yêu cầu
+
+            // Order Configuration
+            builder.Entity<Order>()
+                .HasKey(o => o.OrderId);
+
+            builder.Entity<Order>()
+                .Property(o => o.Amount)
+                .HasPrecision(18, 2); // Precision for decimal values
+
+            builder.Entity<Order>()
+             .HasOne(o => o.User)
+             .WithMany()
+             .HasForeignKey(o => o.UserId)
+             .OnDelete(DeleteBehavior.Cascade); // Xóa User sẽ xóa các Order liên quan
+
+            // OrderItem Configuration
+            builder.Entity<OrderDetail>()
+                .HasKey(oi => oi.Id);
+
+            builder.Entity<OrderDetail>()
+                .Property(oi => oi.UnitPrice)
+                .HasPrecision(18, 2); // Precision for decimal values
+
+
+
+
             // Ticket Reply Configuration
             builder.Entity<TicketReply>()
                 .HasOne(r => r.User)
@@ -171,6 +226,20 @@ namespace OnlineShop.Data
                 .HasForeignKey(ua => ua.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            // Thiết lập mối quan hệ giữa Comment và Product
+            builder.Entity<Feedback>()
+                .HasOne(c => c.Product)
+                .WithMany(p => p.Feedbacks)
+                .HasForeignKey(c => c.ProductID)
+                .OnDelete(DeleteBehavior.Cascade); // Xóa bình luận nếu sản phẩm bị xóa
+
+            // Thiết lập mối quan hệ giữa Comment và ApplicationUser
+            builder.Entity<Feedback>()
+                .HasOne(c => c.Customer)
+                .WithMany(u => u.Feedbacks)
+                .HasForeignKey(c => c.CustomerID)
+                .OnDelete(DeleteBehavior.Restrict); // Không xóa user nếu có bình luận
+
             // Ensure only one default address per user
             builder.Entity<UserAddress>()
                 .HasIndex(ua => new { ua.UserId, ua.IsDefault })
@@ -187,9 +256,10 @@ namespace OnlineShop.Data
                 entity.HasOne(d => d.Ad).WithMany(p => p.AdCategories)
                     .HasForeignKey(d => d.AdId)
                     .HasConstraintName("FK_AdCategory_Advertisement");
+
                 entity.HasOne(d => d.Category).WithMany(p => p.AdCategories)
-                .HasForeignKey(d => d.CategoryId)
-                .HasConstraintName("FK_AdCategory_CategoryProduct");
+              .HasForeignKey(d => d.CategoryId)
+              .HasConstraintName("FK_AdCategory_CategoryProduct");
             });
 
             builder.Entity<AdClickLog>(entity =>
@@ -251,9 +321,9 @@ namespace OnlineShop.Data
                 entity.Property(e => e.PreviewImageUrl).HasMaxLength(500);
 
                 entity.HasOne(d => d.AdTemplateType)
-                .WithMany()
-                .HasForeignKey(d => d.TypeId)
-                .HasConstraintName("FK_AdTemplate_AdTemplateType");
+               .WithMany()
+               .HasForeignKey(d => d.TypeId)
+               .HasConstraintName("FK_AdTemplate_AdTemplateType");
             });
 
             builder.Entity<AdTemplatePosition>(entity =>
@@ -294,9 +364,9 @@ namespace OnlineShop.Data
                     .HasConstraintName("FK_Advertisement_AdTemplate");
 
                 entity.HasMany(a => a.AdProducts)
-                .WithOne(a => a.Advertisement)
-                .HasForeignKey(a => a.AdId)
-                .HasConstraintName("FK_Advertisement_AdProduct");
+               .WithOne(a => a.Advertisement)
+               .HasForeignKey(a => a.AdId)
+               .HasConstraintName("FK_Advertisement_AdProduct");
             });
 
             builder.Entity<Blog>(entity =>
@@ -321,16 +391,15 @@ namespace OnlineShop.Data
 
                 // Thiết lập quan hệ 1-1 với ApplicationUser
                 entity.HasOne(d => d.User)
-                    .WithMany(b => b.Blogs)
-                    .HasForeignKey(d => d.AuthorId) // AuthorId là khóa ngoại trỏ tới IdentityUser.Id
+                    .WithOne() // nếu bạn không có navigation property Blog trong ApplicationUser thì dùng WithOne()
+                    .HasForeignKey<Blog>(d => d.AuthorId) // AuthorId là khóa ngoại trỏ tới IdentityUser.Id
                     .HasConstraintName("FK_Blog_ApplicationUser");
 
                 entity.HasMany(d => d.LikeOfBlogs)
-                   .WithOne(b => b.Blog)
-                   .HasForeignKey(d => d.BlogId) // AuthorId là khóa ngoại trỏ tới IdentityUser.Id
-                   .HasConstraintName("FK_Blog_LikeOfBlog");
+                .WithOne(b => b.Blog)
+                .HasForeignKey(d => d.BlogId) // AuthorId là khóa ngoại trỏ tới IdentityUser.Id
+                .HasConstraintName("FK_Blog_LikeOfBlog");
             });
-
             builder.Entity<LikeOfBlog>(entity =>
             {
                 entity.ToTable("LikeOfBlog");
@@ -342,6 +411,7 @@ namespace OnlineShop.Data
                     .HasConstraintName("FK_LikeOfBlog_ApplicationUser")
                     ;
             });
+
             builder.Entity<BlogCategory>(entity =>
             {
                 entity.ToTable("BlogCategory");
@@ -396,6 +466,12 @@ namespace OnlineShop.Data
                 entity.Property(e => e.ThumbnailName).HasDefaultValueSql("(N'')");
                 entity.Property(e => e.ThumnailUrl).HasMaxLength(500);
             });
+
+
+
+
+            builder.ApplyConfiguration(new RefundHistoryConfiguration());
+
         }
     }
 }

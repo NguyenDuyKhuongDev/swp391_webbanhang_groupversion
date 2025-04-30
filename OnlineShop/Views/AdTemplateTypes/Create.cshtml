@@ -1,38 +1,160 @@
 ﻿@model OnlineShop.Models.AdTemplateType
 
 @{
-    ViewData["Title"] = "Create";
- }
+    ViewData["Title"] = "Tạo Loại Mẫu Quảng Cáo";
+}
 
-<h1>Create</h1>
-
-<h4>AdTemplateType</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 py-3 px-4 rounded-3" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-left: 4px solid #4e73df;">
+        <div>
+            <h2 class="mb-0 text-dark">
+                <i class="fas fa-plus-circle me-2" style="color: #4e73df;"></i>Tạo Loại Mẫu Quảng Cáo
+            </h2>
+            <small class="text-muted">
+                <i class="fas fa-info-circle me-1 text-info"></i>Thêm loại mẫu quảng cáo mới vào hệ thống
+            </small>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-primary">
+            <i class="fas fa-list me-2"></i>Quay lại Danh sách
+        </a>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-layer-group me-2"></i>Chi Tiết Mẫu Quảng Cáo
+            </h5>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i>Vui lòng sửa các lỗi sau
+                </div>
+                
+                <div class="mb-4">
+                    <label asp-for="Title" class="form-label fw-bold">
+                        <i class="fas fa-heading me-1"></i>Tiêu đề
+                    </label>
+                    <input asp-for="Title" class="form-control form-control-lg" 
+                           placeholder="Ví dụ: Banner Khuyến Mãi Hè" />
+                    <div class="form-text">Tiêu đề mô tả cho loại mẫu của bạn</div>
+                    <span asp-validation-for="Title" class="text-danger small"></span>
+                </div>
+                
+                <div class="mb-4">
+                    <label asp-for="Name" class="form-label fw-bold">
+                        <i class="fas fa-tag me-1"></i>Tên định danh
+                    </label>
+                    <input asp-for="Name" class="form-control form-control-lg" 
+                           placeholder="Ví dụ: banner-khuyen-mai-he" />
+                    <div class="form-text">Tên duy nhất để nhận diện loại mẫu này</div>
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                
+                <div class="d-flex justify-content-between mt-5">
+                    <button type="submit" class="btn btn-primary px-4 py-2">
+                        <i class="fas fa-plus-circle me-2"></i>Tạo Mẫu
+                    </button>
+                    <button type="reset" class="btn btn-outline-danger px-4 py-2">
+                        <i class="fas fa-undo me-2"></i>Đặt Lại
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
+        }
+
+        .card-header {
+            padding: 1rem 1.35rem;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .form-control-lg {
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid #dee2e6;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+            .form-control-lg:focus {
+                border-color: #86b7fe;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+
+        .btn {
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            box-shadow: 0 2px 5px rgba(13, 110, 253, 0.2);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+            }
+
+        .btn-outline-danger:hover {
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+        .alert-danger {
+            border-left: 4px solid #dc3545;
+            padding-left: 1.25rem;
+        }
+    </style>
+}
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Bật validation của Bootstrap
+            (function () {
+                'use strict'
+                
+                var forms = document.querySelectorAll('.needs-validation')
+                
+                Array.prototype.slice.call(forms)
+                    .forEach(function (form) {
+                        form.addEventListener('submit', function (event) {
+                            if (!form.checkValidity()) {
+                                event.preventDefault()
+                                event.stopPropagation()
+                            }
+                            
+                            form.classList.add('was-validated')
+                        }, false)
+                    })
+            })()
+            
+            // Tự động định dạng trường Tên (Name)
+            const nameInput = document.getElementById('Name');
+            if (nameInput) {
+                nameInput.addEventListener('input', function() {
+                    this.value = this.value.toLowerCase().replace(/[^a-z0-9-]/g, '-');
+                });
+            }
+        });
+    </script>
 }

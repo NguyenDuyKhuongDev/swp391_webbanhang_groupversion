@@ -4,16 +4,16 @@ namespace OnlineShop.Models
 {
     public class LoginModel
     {
-        [Required(ErrorMessage = "Username is required")]
-        [Display(Name = "Username")]
+        [Required(ErrorMessage = "Tên đăng nhập không được để trống.")]
+        [Display(Name = "Tên đăng nhập")]
         public string? Username { get; set; }
 
-        [Required(ErrorMessage = "Password is required")]
-        [Display(Name = "Password")]
+        [Required(ErrorMessage = "Mật khẩu không được để trống.")]
+        [Display(Name = "Mật khẩu")]
         [DataType(DataType.Password)]
         public string? Password { get; set; }
 
-        [Display(Name = "Remember me")]
+        [Display(Name = "Ghi nhớ đăng nhập")]
         public bool RememberMe { get; set; }
     }
 }

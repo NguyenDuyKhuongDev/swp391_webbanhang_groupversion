@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Data;
@@ -22,7 +22,7 @@ namespace OnlineShop.Controllers
         public async Task<IActionResult> Index(OrderFilterModel filter)
         {
             var query = _context.Orders
-                .Include(o => o.OrderDetails)
+                .Include(o => o.OrderItems)
                 .Include(o => o.User)
                 .AsQueryable();
 
@@ -31,8 +31,8 @@ namespace OnlineShop.Controllers
                 query = query.Where(o => o.OrderId.Contains(filter.OrderId));
 
             if (!string.IsNullOrEmpty(filter.CustomerSearch))
-                query = query.Where(o => o.User.Email.Contains(filter.CustomerSearch) || 
-                                        o.User.UserName.Contains(filter.CustomerSearch));
+                query = query.Where(o => o.User.Email.Contains(filter.CustomerSearch) ||
+                                      o.User.UserName.Contains(filter.CustomerSearch));
 
             if (!string.IsNullOrEmpty(filter.Status))
                 query = query.Where(o => o.Status == filter.Status);
@@ -40,16 +40,16 @@ namespace OnlineShop.Controllers
             // Apply sorting
             query = filter.SortColumn?.ToLower() switch
             {
-                "date" => filter.SortOrder == "asc" 
-                    ? query.OrderBy(o => o.OrderDate)
-                    : query.OrderByDescending(o => o.OrderDate),
+                "date" => filter.SortOrder == "asc"
+                    ? query.OrderBy(o => o.CreatedDate)
+                    : query.OrderByDescending(o => o.CreatedDate),
                 "total" => filter.SortOrder == "asc"
-                    ? query.OrderBy(o => o.TotalAmount)
-                    : query.OrderByDescending(o => o.TotalAmount),
+                    ? query.OrderBy(o => o.Amount)
+                    : query.OrderByDescending(o => o.Amount),
                 "status" => filter.SortOrder == "asc"
                     ? query.OrderBy(o => o.Status)
                     : query.OrderByDescending(o => o.Status),
-                _ => query.OrderByDescending(o => o.OrderDate) // Default sorting
+                _ => query.OrderByDescending(o => o.CreatedDate) // Default sorting
             };
 
             // Set total items for paging
@@ -63,15 +63,15 @@ namespace OnlineShop.Controllers
             return View(new Tuple<List<Order>, OrderFilterModel>(orders, filter));
         }
 
-        public async Task<IActionResult> Details(int? id)
+        public async Task<IActionResult> Details(string? id)
         {
             if (id == null)
                 return NotFound();
 
             var order = await _context.Orders
                 .Include(o => o.User)
-                .Include(o => o.OrderDetails)
-                .FirstOrDefaultAsync(m => m.Id == id);
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(m => m.OrderId == id);
 
             if (order == null)
                 return NotFound();
@@ -80,31 +80,45 @@ namespace OnlineShop.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateStatus(int id, string status, string cancellationReason)
+        public async Task<IActionResult> UpdateStatus(string id, string status, string cancellationReason)
         {
             var order = await _context.Orders
                 .Include(o => o.User)
-                .FirstOrDefaultAsync(o => o.Id == id);
+                .FirstOrDefaultAsync(o => o.OrderId == id);
 
             if (order == null)
                 return NotFound();
 
             order.Status = status;
-            
+
             if (status == "Cancelled")
             {
-                if (string.IsNullOrWhiteSpace(cancellationReason))
-                    ModelState.AddModelError("", "Cancellation reason is required");
-                else
-                    order.CancellationReason = cancellationReason;
+                // Create refund history record
+                var refundHistory = new RefundHistory
+                {
+                    OrderId = order.OrderId,
+                    UserId = order.UserId,
+                    RefundAmount = order.Amount,
+                    RefundStatus = "Completed",
+                    Reason = "Nhân viên hủy đơn của khách",
+                    RefundDate = DateTime.UtcNow
+                };
+
+                // Save changes
+                _context.RefundHistories.Add(refundHistory);
+
+                //if (string.IsNullOrWhiteSpace(cancellationReason))
+                //    ModelState.AddModelError("", "Cancellation reason is required");
+                //else
+                //    order.OrderInfo = cancellationReason;
             }
 
             await _context.SaveChangesAsync();
-            
+
             // Send email notification
             await _emailService.SendOrderStatusUpdateEmail(order);
 
-            return RedirectToAction(nameof(Details), new { id = order.Id });
+            return RedirectToAction(nameof(Details), new { id = order.OrderId });
         }
     }
 }

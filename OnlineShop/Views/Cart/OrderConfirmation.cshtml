@@ -1,0 +1,79 @@
+﻿@model OnlineShop.ViewModel.OrderConfirmationViewModel
+
+@{
+    ViewData["Title"] = "Xác nhận đơn hàng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <h2 class="text-center mb-4">Xác nhận đơn hàng</h2>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Thông tin đơn hàng</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Mã đơn hàng:</strong> @Model.OrderId</p>
+            <p><strong>Tên khách hàng:</strong> @Model.CustomerName</p>
+            <p><strong>Số điện thoại:</strong> @Model.PhoneNumber</p>
+            <p><strong>Tổng tiền:</strong> @Model.Amount.ToString("C", new System.Globalization.CultureInfo("vi-VN"))</p>
+            <p><strong>Mô tả:</strong> @Model.OrderInfo</p>
+            <p><strong>Địa chỉ giao hàng:</strong> @Model.DeliveryAddress</p>
+            <p>
+                <strong>Trạng thái:</strong>
+                @if (Model.IsSuccess)
+                {
+                    <span class="badge bg-success">Thành công</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Thất bại</span>
+                }
+            </p>
+            <p><strong>Ngày tạo:</strong> @Model.CreatedDate.ToString("dd/MM/yyyy HH:mm:ss")</p>
+            @if (!string.IsNullOrEmpty(Model.Message))
+            {
+                <p><strong>Thông báo:</strong> @Model.Message</p>
+            }
+        </div>
+    </div>
+
+    @if (Model.OrderItems != null && Model.OrderItems.Any())
+    {
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5>Chi tiết sản phẩm</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Hình ảnh</th>
+                            <th>Giá (VNĐ)</th>
+                            <th>Số lượng</th>
+                            <th>Tổng (VNĐ)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <tr>
+                                <td>@item.ProductName</td>
+                                <td><img src="@item.ImageUrl" alt="@item.ProductName" style="width: 50px;" /></td>
+                                <td>@item.UnitPrice.ToString("C", new System.Globalization.CultureInfo("vi-VN"))</td>
+                                <td>@item.Quantity</td>
+                                <td>@((item.UnitPrice * item.Quantity).ToString("C", new System.Globalization.CultureInfo("vi-VN")))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <div class="mt-4 text-center">
+        <a href="@Url.Action("Index", "Home")" class="btn btn-primary">Tiếp tục mua sắm</a>
+        <a href="@Url.Action("CartDetail", "Cart")" class="btn btn-secondary">Xem giỏ hàng</a>
+    </div>
+</div>

@@ -37,8 +37,16 @@ namespace OnlineShop.Controllers
 
             if (!success)
             {
+                if (errorField == string.Empty && errorMessage.Contains("khóa"))
+                {
+                    TempData["LockoutMessage"] = errorMessage;
+                    TempData["LockedUsername"] = model.Username;
+                    return RedirectToAction("Lockout");
+                }
+
                 ModelState.AddModelError(errorField, errorMessage);
                 return View(model);
+
             }
 
             // Sign in user
@@ -46,13 +54,27 @@ namespace OnlineShop.Controllers
 
             // Check user roles and redirect
             var roles = await _authDAO.GetUserRolesAsync(user);
-            if (roles.Contains("Employee"))
+            if (roles.Contains(UserRoles.Employee))
             {
                 return RedirectToAction("ProductView", "Product");
+            }
+            if (roles.Contains(UserRoles.Admin))
+            {
+                return RedirectToAction("Customers", "User");
             }
 
             // Default fallback
             return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult Lockout()
+        {
+            if (TempData["LockoutMessage"] == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            return View();
         }
 
         [HttpGet]

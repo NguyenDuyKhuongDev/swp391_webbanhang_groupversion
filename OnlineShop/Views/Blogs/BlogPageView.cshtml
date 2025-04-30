@@ -1,32 +1,42 @@
 ﻿@using Microsoft.AspNetCore.Html
+@using System.Security.Claims
 @model OnlineShop.Models.Blog
 @inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewData["Title"] = Model.Title;
+    var authorEmail = ViewBag.authorEmail as string;
     ViewData["MetaDescription"] = Model.MetaDescription;
     ViewData["MetaKeywords"] = Model.MetaTitle;
     var tags = ViewBag.BlogTags as List<string>;
     var BlogAds = ViewBag.BlogAds as List<OnlineShop.Models.Advertisement>;
+    var LikeCounts =ViewBag.LikeCounts ;
 }
 
+<header>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</header>
+
 <!-- Blog Header Section -->
-<section class="bg-light py-4 mb-5">
+<section class="bg-light py-5 mb-5">
     <div class="container">
         <nav aria-label="breadcrumb">
-            <ol class="breadcrumb bg-transparent mb-0">
+            <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-                <li class="breadcrumb-item"><a href="/IndexCommonBlogs">Blog</a></li>
-                <li class="breadcrumb-item"><a href="/blog/category/@Model.Slug">@Model.Category?.Name</a></li>
+                <li class="breadcrumb-item"><a asp-action="IndexCommonBlogs">Blog</a></li>
                 <li class="breadcrumb-item active" aria-current="page">@Model.Title</li>
             </ol>
         </nav>
     </div>
 </section>
-
+@await Component.InvokeAsync("Ad", new { position = "Header", blogId = Model.Id })
 <!-- Main Blog Content -->
 <article class="container my-5">
     <div class="row justify-content-center">
+        <div class="col-lg-2 d-none d-lg-block">
+            @await Component.InvokeAsync("Ad", new { position = "LeftSidebar", blogId = Model.Id })
+        </div>
         <div class="col-lg-8">
             <!-- Blog Header -->
             <header class="mb-5">
@@ -39,23 +49,23 @@
                     </small>
                 </div>
 
-                <h1 class="display-4 fw-bold mb-3">@Model.Title</h1>
+                <h1 class="display-5 fw-bold mb-4" style="line-height: 1.3;">@Model.Title</h1>
 
                 <div class="d-flex align-items-center mb-4">
                     <div class="avatar bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
                         <i class="fas fa-user text-primary fs-4"></i>
                     </div>
                     <div>
-                        <div class="fw-bold">@Model.AuthorId</div>
+                        <div class="fw-bold mb-1">@authorEmail</div>
                         <div class="text-muted small">
                             <span class="me-3">
-                                <i class="fas fa-eye me-1"></i> @(Model.ViewCount ?? 0)
+                                <i class="fas fa-eye me-1 text-primary"></i> @(Model.ViewCount ?? 0)
                             </span>
                             <span class="me-3">
-                                <i class="fas fa-heart me-1"></i> @(Model.LikeCount ?? 0)
+                                <i class="fas fa-heart me-1 text-danger"></i> @LikeCounts
                             </span>
                             <span>
-                                <i class="fas fa-comment me-1"></i> @(Model.CommentCount ?? 0)
+                                <i class="fas fa-comment me-1 text-info"></i> @(Model.CommentCount ?? 0)
                             </span>
                         </div>
                     </div>
@@ -67,36 +77,65 @@
                 @if (!string.IsNullOrEmpty(Model.Thumbnail?.ThumnailUrl))
                 {
                     <img src="@Model.Thumbnail.ThumnailUrl"
-                         class="img-fluid rounded-4 w-100 shadow"
+                         class="img-fluid rounded-4 w-100 shadow-lg"
                          alt="@Model.Thumbnail.ThumbnailName"
-                         style="max-height: 500px; object-fit: cover;">
+                         style="max-height: 500px; object-fit: cover; object-position: center;">
                 }
-                <figcaption class="text-center mt-2 text-muted small">@Model.Thumbnail?.ThumbnailName</figcaption>
+                <figcaption class="text-center mt-3 text-muted small">@Model.Thumbnail?.ThumbnailName</figcaption>
             </figure>
 
             <!-- Blog Content -->
-            <div class="blog-content fs-5 lh-base mb-5">
+            <div class="blog-content fs-5 lh-base mb-5" style="font-family: 'Inter', sans-serif;">
                 @Html.Raw(Model.Content)
+               
+                <div class="my-4">
+                    @await Component.InvokeAsync("Ad", new { position = "InlineContent", blogId = Model.Id })
+                </div>
+
             </div>
 
             <!-- Blog Footer with Like and Stats -->
             <div class="d-flex justify-content-between align-items-center border-top border-bottom py-4 mb-5">
                 <!-- Like Button -->
-                <div>
-                    <button id="likeButton" class="btn btn-like">
-                        <i class="far fa-heart me-1"></i>
-                        <span class="like-text">Thích bài viết</span>
-                        <span class="like-count">(@(Model.LikeCount ?? 0))</span>
-                    </button>
-                </div>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <div>
+                        <form asp-controller="Blogs" asp-action="BlogPageView" method="post">
+                            @{
+                                var userId = @User.FindFirstValue(ClaimTypes.NameIdentifier);
+                            }
+                            <input type="hidden" name="userId" value="@userId" />
+                            <input type="hidden" name="blogId" value="@Model.Id" />
+                            <button type="submit" class="btn btn-like">
+                                <i class="far fa-heart me-1"></i>
+                                <span class="like-text">Thích bài viết</span>
+                                <span class="like-count">(@(Model.LikeCount ?? 0))</span>
+                            </button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <div>
+                        <form asp-controller="Auth" asp-action="Login" method="post">
+                                                      <button type="submit" class="btn btn-like">
+                                <i class="far fa-heart me-1"></i>
+                                <span class="like-text">Thích bài viết</span>
+                                <span class="like-count">(@(Model.LikeCount ?? 0))</span>
+                            </button>
+                        </form>
+                    </div>
+                }
+
+
 
                 <!-- Stats -->
                 <div class="d-flex align-items-center gap-4">
                     <div class="text-muted">
-                        <i class="fas fa-eye me-1"></i> @(Model.ViewCount ?? 0) lượt xem
+                        <i class="fas fa-eye me-1 text-primary"></i> @(Model.ViewCount ?? 0) lượt xem
                     </div>
                     <div class="text-muted">
-                        <i class="fas fa-comment me-1"></i> @(Model.CommentCount ?? 0) bình luận
+                        <i class="fas fa-comment me-1 text-info"></i> @(Model.CommentCount ?? 0) bình luận
                     </div>
                 </div>
             </div>
@@ -105,69 +144,78 @@
             <div class="mb-5">
                 <h5 class="fw-bold mb-3">Tags:</h5>
                 <div class="d-flex flex-wrap gap-2">
-                @if(tags!=null &&tags.Count >0) {
-                    foreach (var tag in ViewBag.BlogTags)
+                    @if (tags != null && tags.Count > 0)
                     {
-                        <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill px-3">#@tag</a>
+                        foreach (var tag in ViewBag.BlogTags)
+                        {
+                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2 hover-scale">
+                                <i class="fas fa-hashtag me-1"></i>@tag
+                            </a>
+                        }
                     }
-                 }
                 </div>
             </div>
 
             <!-- Social Sharing -->
             <div class="d-flex align-items-center gap-3 mb-5">
                 <span class="fw-bold me-2">Chia sẻ:</span>
-                <a href="#" class="btn btn-sm btn-outline-primary rounded-circle" title="Facebook"
+                <a href="#" class="btn btn-sm btn-outline-primary rounded-circle hover-scale" title="Facebook"
                    data-url="@Url.Action("Details", "Blogs", new { id = Model.Id }, Context.Request.Scheme)">
                     <i class="fab fa-facebook-f"></i>
                 </a>
-                <a href="#" class="btn btn-sm btn-outline-primary rounded-circle" title="Twitter"
+                <a href="#" class="btn btn-sm btn-outline-primary rounded-circle hover-scale" title="Twitter"
                    data-url="@Url.Action("Details", "Blogs", new { id = Model.Id }, Context.Request.Scheme)">
                     <i class="fab fa-twitter"></i>
                 </a>
-                <a href="#" class="btn btn-sm btn-outline-primary rounded-circle" title="LinkedIn"
+                <a href="#" class="btn btn-sm btn-outline-primary rounded-circle hover-scale" title="LinkedIn"
                    data-url="@Url.Action("Details", "Blogs", new { id = Model.Id }, Context.Request.Scheme)">
                     <i class="fab fa-linkedin-in"></i>
                 </a>
-                <a href="#" class="btn btn-sm btn-outline-primary rounded-circle" title="Copy link"
+                <a href="#" class="btn btn-sm btn-outline-primary rounded-circle hover-scale" title="Copy link"
                    data-url="@Url.Action("Details", "Blogs", new { id = Model.Id }, Context.Request.Scheme)">
                     <i class="fas fa-link"></i>
                 </a>
             </div>
 
-
             <!-- Author Bio -->
-            <div class="card border-0 bg-light p-4 mb-5 rounded-4">
+            <div class="card border-0 bg-light p-4 mb-5 rounded-4 hover-lift">
                 <div class="row align-items-center">
                     <div class="col-md-2 text-center mb-3 mb-md-0">
-                        <div class="avatar bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
+                        <div class="avatar bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto hover-scale" style="width: 80px; height: 80px;">
                             <i class="fas fa-user text-primary fs-3"></i>
                         </div>
                     </div>
                     <div class="col-md-10">
                         <h5 class="fw-bold mb-2">Về tác giả</h5>
-                        <p class="mb-0">@Model.AuthorId</p>
+                        @if (authorEmail != null)
+                        {
+                            <p class="mb-0">@authorEmail</p>
+                        }
+                        else
+                        {
+                            <p class="mb-0">Ẩn Danh</p>
+                        }
                     </div>
                 </div>
             </div>
-
+            @await Component.InvokeAsync("Ad", new { position = "Footer", blogId = Model.Id })
             <!-- Comments Section -->
             <div class="mb-5">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <h3 class="fw-bold mb-0">
-                        <i class="far fa-comments me-2"></i> @Model.CommentCount bình luận
+                        <i class="far fa-comments me-2 text-info"></i> @Model.CommentCount bình luận
                     </h3>
-                    <button class="btn btn-sm btn-outline-primary" id="toggleCommentForm">
+                    <button class="btn btn-sm btn-outline-primary hover-scale" id="toggleCommentForm">
                         <i class="far fa-edit me-1"></i> Viết bình luận
                     </button>
                 </div>
 
                 <!-- Comment Form (Initially Hidden) -->
-                <div class="card border-0 shadow-sm p-4 mb-4 rounded-4" id="commentForm" style="display: none;">
+                <div class="card border-0 shadow-sm p-4 mb-4 rounded-4 hover-lift" id="commentForm" style="display: none;">
                     <h5 class="fw-bold mb-3">Để lại bình luận</h5>
                     <form>
                         <div class="mb-3">
-                            <textarea class="form-control" rows="3" placeholder="Viết bình luận của bạn..."></textarea>
+                            <textarea class="form-control" rows="3" placeholder="Viết bình luận của bạn..." style="min-height: 120px;"></textarea>
                         </div>
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -177,7 +225,7 @@
                                 <input type="email" class="form-control" placeholder="Email">
                             </div>
                             <div class="col-12">
-                                <button type="submit" class="btn btn-primary px-4">
+                                <button type="submit" class="btn btn-primary px-4 hover-scale">
                                     <i class="far fa-paper-plane me-2"></i> Gửi bình luận
                                 </button>
                             </div>
@@ -188,28 +236,28 @@
                 <!-- Comments List -->
                 <div class="comments-list">
                     <!-- Sample Comment 1 -->
-                    <div class="card border-0 shadow-sm p-4 mb-3 rounded-4">
+                    <div class="card border-0 shadow-sm p-4 mb-3 rounded-4 hover-lift">
                         <div class="d-flex mb-3">
-                            <div class="avatar bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <div class="avatar bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3 hover-scale" style="width: 50px; height: 50px;">
                                 <i class="fas fa-user text-primary"></i>
                             </div>
                             <div>
                                 <h6 class="fw-bold mb-1">Nguyễn Văn A</h6>
-                                <small class="text-muted">2 ngày trước</small>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i> 2 ngày trước</small>
                             </div>
                         </div>
                         <p class="mb-0">Bài viết rất hữu ích, cảm ơn tác giả đã chia sẻ những thông tin chi tiết như vậy!</p>
                     </div>
 
                     <!-- Sample Comment 2 -->
-                    <div class="card border-0 shadow-sm p-4 mb-3 rounded-4">
+                    <div class="card border-0 shadow-sm p-4 mb-3 rounded-4 hover-lift">
                         <div class="d-flex mb-3">
-                            <div class="avatar bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <div class="avatar bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3 hover-scale" style="width: 50px; height: 50px;">
                                 <i class="fas fa-user text-primary"></i>
                             </div>
                             <div>
                                 <h6 class="fw-bold mb-1">Trần Thị B</h6>
-                                <small class="text-muted">1 tuần trước</small>
+                                <small class="text-muted"><i class="far fa-clock me-1"></i> 1 tuần trước</small>
                             </div>
                         </div>
                         <p class="mb-0">Mình đã áp dụng theo hướng dẫn và thấy hiệu quả rõ rệt. Mong tác giả ra thêm nhiều bài viết như này!</p>
@@ -217,55 +265,58 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-2 d-none d-lg-block">
+            @await Component.InvokeAsync("Ad", new { position = "RightSidebar", blogId = Model.Id })
+        </div>
     </div>
 </article>
 
 <!-- Related Posts -->
 <section class="bg-light py-5">
     <div class="container">
-        <h2 class="fw-bold mb-4 text-center">Bài viết liên quan</h2>
+        <h2 class="fw-bold mb-5 text-center display-6">Bài viết liên quan</h2>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <!-- Sample Related Post 1 -->
             <div class="col">
-                <div class="card h-100 border-0 shadow-sm hover-effect">
-                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Related post" style="height: 200px; object-fit: cover;">
+                <div class="card h-100 border-0 shadow-sm hover-lift">
+                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Related post" style="height: 200px; object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;">
                     <div class="card-body">
                         <span class="badge bg-primary bg-opacity-10 text-primary mb-2">@Model.Category?.Name</span>
                         <h5 class="card-title fw-bold">Cách phối đồ công sở mùa hè</h5>
                         <p class="card-text text-muted">Những bí quyết giúp bạn luôn thoải mái mà vẫn thanh lịch...</p>
                     </div>
-                    <div class="card-footer bg-transparent border-0">
-                        <a href="#" class="btn btn-outline-primary w-100">Đọc tiếp</a>
+                    <div class="card-footer bg-transparent border-0 pt-0">
+                        <a href="#" class="btn btn-outline-primary w-100 hover-scale">Đọc tiếp</a>
                     </div>
                 </div>
             </div>
 
             <!-- Sample Related Post 2 -->
             <div class="col">
-                <div class="card h-100 border-0 shadow-sm hover-effect">
-                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Related post" style="height: 200px; object-fit: cover;">
+                <div class="card h-100 border-0 shadow-sm hover-lift">
+                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Related post" style="height: 200px; object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;">
                     <div class="card-body">
                         <span class="badge bg-primary bg-opacity-10 text-primary mb-2">@Model.Category?.Name</span>
                         <h5 class="card-title fw-bold">Xu hướng thời trang hè 2023</h5>
                         <p class="card-text text-muted">Cập nhật những xu hướng nổi bật nhất mùa hè này...</p>
                     </div>
-                    <div class="card-footer bg-transparent border-0">
-                        <a href="#" class="btn btn-outline-primary w-100">Đọc tiếp</a>
+                    <div class="card-footer bg-transparent border-0 pt-0">
+                        <a href="#" class="btn btn-outline-primary w-100 hover-scale">Đọc tiếp</a>
                     </div>
                 </div>
             </div>
 
             <!-- Sample Related Post 3 -->
             <div class="col">
-                <div class="card h-100 border-0 shadow-sm hover-effect">
-                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Related post" style="height: 200px; object-fit: cover;">
+                <div class="card h-100 border-0 shadow-sm hover-lift">
+                    <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="Related post" style="height: 200px; object-fit: cover; border-radius: 0.5rem 0.5rem 0 0;">
                     <div class="card-body">
                         <span class="badge bg-primary bg-opacity-10 text-primary mb-2">@Model.Category?.Name</span>
                         <h5 class="card-title fw-bold">Bí quyết chọn size đồ chuẩn</h5>
                         <p class="card-text text-muted">Hướng dẫn chi tiết cách chọn size đồ phù hợp với vóc dáng...</p>
                     </div>
-                    <div class="card-footer bg-transparent border-0">
-                        <a href="#" class="btn btn-outline-primary w-100">Đọc tiếp</a>
+                    <div class="card-footer bg-transparent border-0 pt-0">
+                        <a href="#" class="btn btn-outline-primary w-100 hover-scale">Đọc tiếp</a>
                     </div>
                 </div>
             </div>
@@ -275,10 +326,41 @@
 
 @section Styles {
     <style>
+        :root {
+            --primary-color: #0d6efd;
+            --secondary-color: #6c757d;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --border-radius: 0.5rem;
+            --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        /* Typography Improvements */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.3;
+        }
+
+        .display-5 {
+            font-size: 2.5rem;
+        }
+
+        .display-6 {
+            font-size: 2rem;
+        }
+
         /* Custom Styles */
         .breadcrumb {
             padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
+            border-radius: var(--border-radius);
             background-color: rgba(0, 0, 0, 0.03);
         }
 
@@ -291,25 +373,37 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: var(--transition);
         }
 
         .blog-content {
             line-height: 1.8;
+            font-size: 1.1rem;
         }
 
             .blog-content img {
                 max-width: 100%;
                 height: auto;
-                border-radius: 0.5rem;
-                margin: 1.5rem 0;
+                border-radius: var(--border-radius);
+                margin: 2rem 0;
+                box-shadow: var(--box-shadow);
             }
 
-            .blog-content h2,
-            .blog-content h3,
+            .blog-content h2 {
+                font-size: 1.8rem;
+                margin-top: 3rem;
+                padding-bottom: 0.5rem;
+                border-bottom: 1px solid #eee;
+            }
+
+            .blog-content h3 {
+                font-size: 1.5rem;
+                margin-top: 2.5rem;
+            }
+
             .blog-content h4 {
+                font-size: 1.3rem;
                 margin-top: 2rem;
-                margin-bottom: 1rem;
-                font-weight: 600;
             }
 
             .blog-content ul,
@@ -319,33 +413,45 @@
             }
 
             .blog-content blockquote {
-                border-left: 4px solid #0d6efd;
-                padding-left: 1.5rem;
-                margin: 1.5rem 0;
+                border-left: 4px solid var(--primary-color);
+                padding: 1rem 1.5rem;
+                margin: 2rem 0;
                 font-style: italic;
-                color: #6c757d;
+                color: var(--secondary-color);
+                background-color: rgba(13, 110, 253, 0.05);
+                border-radius: 0 var(--border-radius) var(--border-radius) 0;
             }
 
-        .hover-effect {
-            transition: all 0.3s ease;
-            border-radius: 0.5rem;
+        /* Hover Effects */
+        .hover-scale {
+            transition: var(--transition);
         }
 
-            .hover-effect:hover {
+            .hover-scale:hover {
+                transform: scale(1.05);
+            }
+
+        .hover-lift {
+            transition: var(--transition);
+        }
+
+            .hover-lift:hover {
                 transform: translateY(-5px);
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+                box-shadow: 0 1rem 1.5rem rgba(0, 0, 0, 0.1) !important;
             }
 
         .rounded-4 {
             border-radius: 1rem !important;
         }
 
+        /* Buttons */
         .btn-outline-primary.rounded-circle {
             width: 36px;
             height: 36px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            transition: var(--transition);
         }
 
         .btn-like {
@@ -354,13 +460,14 @@
             color: #dc3545;
             padding: 0.5rem 1.25rem;
             border-radius: 50px;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             display: flex;
             align-items: center;
         }
 
             .btn-like:hover {
                 background-color: rgba(220, 53, 69, 0.1);
+                transform: translateY(-2px);
             }
 
             .btn-like.liked {
@@ -369,12 +476,54 @@
             }
 
             .btn-like .fa-heart {
-                transition: all 0.3s ease;
+                transition: var(--transition);
             }
 
             .btn-like.liked .fa-heart {
                 font-weight: 900;
             }
+
+        /* Cards */
+        .card {
+            border: none;
+            transition: var(--transition);
+            overflow: hidden;
+        }
+
+        /* Tags */
+        .btn-outline-secondary {
+            transition: var(--transition);
+        }
+
+        /* Social Icons */
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        /* Responsive Adjustments */
+        @@media (max-width: 768px) {
+            .display-5 {
+                font-size: 2rem;
+            }
+
+            .blog-content {
+                font-size: 1rem;
+            }
+
+                .blog-content h2 {
+                    font-size: 1.5rem;
+                }
+
+                .blog-content h3 {
+                    font-size: 1.3rem;
+                }
+        }
     </style>
 }
 
@@ -382,8 +531,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Like button functionality
-            const likeButton = document.getElementById('likeButton');
-            if (likeButton) {
+            const likeButtons = document.querySelectorAll('.btn-like');
+            likeButtons.forEach(likeButton => {
                 likeButton.addEventListener('click', function () {
                     const isLiked = this.classList.contains('liked');
 
@@ -397,12 +546,8 @@
                     const likeCount = this.querySelector('.like-count');
                     const currentCount = parseInt(likeCount.textContent.match(/\d+/)[0]);
                     likeCount.textContent = isLiked ? `(${currentCount - 1})` : `(${currentCount + 1})`;
-
-                    // Here you would typically make an AJAX call to your server
-                    // to update the like count in the database
-                    // fetch(`/blog/like/${@Model.Id}`, { method: 'POST' });
                 });
-            }
+            });
 
             // Toggle comment form
             const toggleCommentForm = document.getElementById('toggleCommentForm');
@@ -410,10 +555,14 @@
             if (toggleCommentForm && commentForm) {
                 toggleCommentForm.addEventListener('click', function () {
                     commentForm.style.display = commentForm.style.display === 'none' ? 'block' : 'none';
+                    this.innerHTML = commentForm.style.display === 'none'
+                        ? '<i class="far fa-edit me-1"></i> Viết bình luận'
+                        : '<i class="fas fa-times me-1"></i> Đóng';
                 });
             }
 
-            document.querySelectorAll('.btn-outline-primary.rounded-circle').forEach(btn => {
+            // Social sharing
+            document.querySelectorAll('[data-url]').forEach(btn => {
                 btn.addEventListener('click', function (e) {
                     e.preventDefault();
                     const title = encodeURIComponent('@Model.Title');
@@ -427,11 +576,22 @@
                         window.open(`https://www.linkedin.com/shareArticle?mini=true&url=${url}&title=${title}`, '_blank');
                     } else if (this.querySelector('.fa-link')) {
                         navigator.clipboard.writeText(decodeURIComponent(url));
-                        alert('Đã sao chép liên kết vào clipboard!');
+
+                        // Show tooltip
+                        const tooltip = document.createElement('div');
+                        tooltip.className = 'position-fixed bg-dark text-white px-3 py-2 rounded';
+                        tooltip.style.bottom = '20px';
+                        tooltip.style.right = '20px';
+                        tooltip.style.zIndex = '9999';
+                        tooltip.textContent = 'Đã sao chép liên kết!';
+                        document.body.appendChild(tooltip);
+
+                        setTimeout(() => {
+                            tooltip.remove();
+                        }, 2000);
                     }
                 });
             });
-
 
             // Smooth scroll for anchor links in content
             document.querySelectorAll('.blog-content a[href^="#"]').forEach(anchor => {
@@ -442,17 +602,26 @@
                     });
                 });
             });
+
+            // Add animation to elements when they come into view
+            const animateOnScroll = function () {
+                const elements = document.querySelectorAll('.card, .avatar, .btn');
+
+                elements.forEach(element => {
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const windowHeight = window.innerHeight;
+
+                    if (elementPosition < windowHeight - 100) {
+                        element.classList.add('animate__animated', 'animate__fadeInUp');
+                    }
+                });
+            };
+
+            // Run once on load
+            animateOnScroll();
+
+            // Run on scroll
+            window.addEventListener('scroll', animateOnScroll);
         });
     </script>
 }
-@* @functions {
-    public IHtmlContent RenderAd(List<AdPlacement> adPlacements, int positionId)
-    {
-        var ad = adPlacements?.FirstOrDefault(x => x.PositionId == positionId);
-        if (ad != null)
-        {
-            return new HtmlString(ad.HtmlContent); // Replace TemplateHtml with HtmlContent
-        }
-        return HtmlString.Empty;
-    }
-} *@

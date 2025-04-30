@@ -2,8 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.DAO;
-using OnlineShop.Data;
-using OnlineShop.Data.Settings;
+using OnlineShop.Data;  
 using OnlineShop.Models;
 using OnlineShop.Services;
 
@@ -15,6 +14,8 @@ ConfigurationManager configuration = builder.Configuration;
 // For Entity Framework
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(configuration.GetConnectionString("ConnStr")));
+//dang ki service cho quang cao
+builder.Services.AddScoped<IAdService, AdService>();
 
 // For Email
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
@@ -23,7 +24,7 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.IdleTimeout = TimeSpan.FromMinutes(720);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
@@ -43,7 +44,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
     options.Password.RequiredLength = 8;
-
+    options.Lockout.AllowedForNewUsers = true;
     options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -66,15 +67,25 @@ builder.Services.AddScoped<ICategorySizeDAO, CategorySizeDAO>();
 
 builder.Services.AddScoped<ICartDAO, CartDAO>();
 builder.Services.AddScoped<IVNPayDAO, VNPayDAO>();
+builder.Services.AddScoped<IOrderDAO, OrderDAO>();
+builder.Services.AddScoped<IUserAddressDAO, UserAddressDAO>();
+
+builder.Services.AddScoped<ISliderDAO, SliderDAO>();
+
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<ISliderDAO, SliderDAO>();
+
 builder.Services.AddScoped<IUserProfileDAO, UserProfileDAO>();
 builder.Services.AddScoped<IAuthDAO, AuthDAO>();
+builder.Services.AddScoped<IFeedbackDAO, FeedbackDAO>();
+builder.Services.AddScoped<IUserManageDAO, UserManageDAO>();
 
 builder.Services.AddHttpContextAccessor();
 
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddNewtonsoftJson()
+    .AddSessionStateTempDataProvider();
 
 var app = builder.Build();
 

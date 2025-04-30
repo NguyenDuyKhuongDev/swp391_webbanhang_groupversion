@@ -1,41 +1,297 @@
 ﻿@model IEnumerable<OnlineShop.Models.AdTemplateType>
 
 @{
-    ViewData["Title"] = "Index";
-   }
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+    ViewData["Title"] = "Ad Template Types";
+    Layout = "_LayoutEmployee";
 }
-    </tbody>
-</table>
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">
+                <i class="fas fa-layer-group text-primary me-2"></i>Ad Template Types
+            </h2>
+            <small class="text-muted">Manage your advertising template types</small>
+        </div>
+        <a asp-action="ProductView" asp-controller="Product" class="btn btn-primary">
+            <i class="fas fa-chevron-left me-2"></i>Quay lại
+        </a>
+        <a asp-action="Create" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Create New
+        </a>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">
+                <i class="fas fa-table me-2"></i>Template Types List
+            </h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th width="35%">
+                                <i class="fas fa-heading me-1"></i>
+                                @Html.DisplayNameFor(model => model.Title)
+                            </th>
+                            <th width="35%">
+                                <i class="fas fa-tag me-1"></i>
+                                @Html.DisplayNameFor(model => model.Name)
+                            </th>
+                            <th width="30%" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="align-middle">
+                                    <strong>@Html.DisplayFor(modelItem => item.Title)</strong>
+                                </td>
+                                <td class="align-middle">
+                                    <span class="badge @GetBadgeColor(item.Name) text-dark fw-bold">
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </span>
+                                </td>
+                                <td class="text-end align-middle">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-start" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Details">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger rounded-end" title="Delete">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetBadgeColor(string name)
+    {
+        var colors = new Dictionary<string, string>
+            {
+                ["primary"] = "bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25",
+                ["success"] = "bg-success bg-opacity-10 text-success border border-success border-opacity-25",
+                ["info"] = "bg-info bg-opacity-10 text-info border border-info border-opacity-25",
+                ["warning"] = "bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25",
+                ["danger"] = "bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25",
+                ["secondary"] = "bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25",
+                ["purple"] = "bg-purple bg-opacity-10 text-purple border border-purple border-opacity-25",
+                ["pink"] = "bg-pink bg-opacity-10 text-pink border border-pink border-opacity-25",
+                ["indigo"] = "bg-indigo bg-opacity-10 text-indigo border border-indigo border-opacity-25",
+                ["teal"] = "bg-teal bg-opacity-10 text-teal border border-teal border-opacity-25",
+                ["orange"] = "bg-orange bg-opacity-10 text-orange border border-orange border-opacity-25"
+            };
+
+        // Get consistent color based on name hash
+        var hash = Math.Abs(name.GetHashCode());
+        var colorKeys = colors.Keys.ToList();
+        var selectedColor = colorKeys[hash % colorKeys.Count];
+
+        return colors[selectedColor];
+    }
+}
+
+@section Styles {
+    <style>
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);
+        }
+
+        .card-header {
+            padding: 1rem 1.35rem;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            padding: 1rem 1.5rem;
+            border-top: none;
+        }
+
+        .table td {
+            padding: 1rem 1.5rem;
+            vertical-align: middle;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .btn-group .btn {
+            transition: all 0.2s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+
+        .btn-outline-info:hover {
+            background-color: rgba(13, 202, 240, 0.1);
+        }
+
+        .btn-outline-danger:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+
+        .badge {
+            font-weight: 600; /* Tăng độ đậm của chữ */
+            padding: 0.5em 0.75em;
+            border-radius: 0.375rem;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            text-shadow: 0 0 1px rgba(0,0,0,0.1); /* Thêm shadow nhẹ cho chữ */
+        }
+
+            .badge:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            /* Điều chỉnh opacity của nền badge */
+            .badge.bg-primary {
+                background-color: rgba(13, 110, 253, 0.15) !important;
+            }
+
+            .badge.bg-success {
+                background-color: rgba(25, 135, 84, 0.15) !important;
+            }
+
+            .badge.bg-info {
+                background-color: rgba(13, 202, 240, 0.15) !important;
+            }
+
+            .badge.bg-warning {
+                background-color: rgba(255, 193, 7, 0.15) !important;
+            }
+
+            .badge.bg-danger {
+                background-color: rgba(220, 53, 69, 0.15) !important;
+            }
+
+            .badge.bg-secondary {
+                background-color: rgba(108, 117, 125, 0.15) !important;
+            }
+
+            .badge.bg-purple {
+                background-color: rgba(111, 66, 193, 0.15) !important;
+            }
+
+            .badge.bg-pink {
+                background-color: rgba(214, 51, 132, 0.15) !important;
+            }
+
+            .badge.bg-indigo {
+                background-color: rgba(102, 16, 242, 0.15) !important;
+            }
+
+            .badge.bg-teal {
+                background-color: rgba(32, 201, 151, 0.15) !important;
+            }
+
+            .badge.bg-orange {
+                background-color: rgba(253, 126, 20, 0.15) !important;
+            }
+
+        /* Additional color classes */
+        .bg-purple {
+            background-color: #6f42c1 !important;
+        }
+
+        .text-purple {
+            color: #6f42c1 !important;
+        }
+
+        .border-purple {
+            border-color: #6f42c1 !important;
+        }
+
+        .bg-pink {
+            background-color: #d63384 !important;
+        }
+
+        .text-pink {
+            color: #d63384 !important;
+        }
+
+        .border-pink {
+            border-color: #d63384 !important;
+        }
+
+        .bg-indigo {
+            background-color: #6610f2 !important;
+        }
+
+        .text-indigo {
+            color: #6610f2 !important;
+        }
+
+        .border-indigo {
+            border-color: #6610f2 !important;
+        }
+
+        .bg-teal {
+            background-color: #20c997 !important;
+        }
+
+        .text-teal {
+            color: #20c997 !important;
+        }
+
+        .border-teal {
+            border-color: #20c997 !important;
+        }
+
+        .bg-orange {
+            background-color: #fd7e14 !important;
+        }
+
+        .text-orange {
+            color: #fd7e14 !important;
+        }
+
+        .border-orange {
+            border-color: #fd7e14 !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Tooltip initialization
+            $('[title]').tooltip({
+                placement: 'top',
+                trigger: 'hover'
+            });
+
+            // Optional: Add animation to table rows
+            $('tbody tr').each(function (i) {
+                $(this).delay(i * 50).animate({
+                    opacity: 1
+                }, 200);
+            }).css('opacity', 0);
+        });
+    </script>
+}

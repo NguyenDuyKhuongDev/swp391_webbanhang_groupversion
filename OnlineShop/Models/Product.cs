@@ -1,5 +1,6 @@
 ﻿using OnlineShop.Data;
 using System.ComponentModel.DataAnnotations;
+using System.Xml.Linq;
 
 namespace OnlineShop.Models
 {
@@ -40,10 +41,13 @@ namespace OnlineShop.Models
         public virtual CategoryProduct? CategoryProduct { get; set; }
         public virtual ICollection<ProductSize> ProductSizes { get; set; }
         public virtual ICollection<OrderDetail> OrderDetails { get; set; }
+        public virtual ICollection<Feedback> Feedbacks { get; set; } // Thêm mối quan hệ với Comments
         public virtual ICollection<AdProducts> AdProducts { get; set; }
+
         public Product()
         {
             ProductSizes = new List<ProductSize>();
+            Feedbacks = new List<Feedback>();
             ProductCreatedDate = DateTime.Now;
         }
     }

@@ -4,7 +4,7 @@
 
 @{
     ViewData["Title"] = "Sản phẩm";
-    Layout = "_Layout";
+    Layout = "~/Views/Shared/_LayoutEmployee.cshtml";
 }
 
 @section Styles {
@@ -17,13 +17,13 @@
         @if (TempData["SuccessMessage"] != null)
         {
             <text>
-                    showNotification('@JavaScriptEncoder.Default.Encode(TempData["SuccessMessage"].ToString())', 'success');
+                        showNotification('@JavaScriptEncoder.Default.Encode(TempData["SuccessMessage"].ToString())', 'success');
             </text>
         }
         @if (TempData["ErrorMessage"] != null)
         {
             <text>
-                    showNotification('@JavaScriptEncoder.Default.Encode(TempData["ErrorMessage"].ToString())', 'error');
+                        showNotification('@JavaScriptEncoder.Default.Encode(TempData["ErrorMessage"].ToString())', 'error');
             </text>
         }
 
@@ -109,7 +109,7 @@
                 <button type="submit" class="btn btn-primary">Tìm</button>
             </div>
         </div>
-    @*     <div class="text-center mt-2">
+        @*     <div class="text-center mt-2">
             <button type="submit" class="btn btn-primary">Áp dụng</button>
         </div> *@
     </form>

@@ -34,19 +34,23 @@ namespace OnlineShop.DAO
             var user = await _userManager.FindByNameAsync(username);
             if (user == null)
             {
-                return (false, "Username", "Username does not exist.", null);
+                return (false, "Username", "Người dùng không tồn tại.", null);
             }
-
+            //kiem tra khoa tai khoan
+            if (user.LockoutEnabled && user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow)
+            {
+                return (false, string.Empty, "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ.", null);
+            }
             // Kiểm tra email đã xác nhận chưa
             if (!await _userManager.IsEmailConfirmedAsync(user))
             {
-                return (false, "Username", "You must confirm your email before logging in.", null);
+                return (false, "Username", "Bạn phải xác thực email trước khi đăng nhập.", null);
             }
 
             // Kiểm tra mật khẩu
             if (!await _userManager.CheckPasswordAsync(user, password))
             {
-                return (false, "Password", "Incorrect password.", null);
+                return (false, "Password", "Mật khẩu không chính xác.", null);
             }
 
             return (true, null, null, user);
@@ -60,7 +64,7 @@ namespace OnlineShop.DAO
             var existingUser = await _userManager.FindByNameAsync(model.Username);
             if (existingUser != null)
             {
-                errors.Add("Username", "User Name is already taken.");
+                errors.Add("Username", "tên người dùng đã tồn tại.");
                 return (false, errors);
             }
 
@@ -68,7 +72,7 @@ namespace OnlineShop.DAO
             var existingEmail = await _userManager.FindByEmailAsync(model.Email);
             if (existingEmail != null)
             {
-                errors.Add("Email", "Email is already registered.");
+                errors.Add("Email", "Email đã được đăng kí.");
                 return (false, errors);
             }
 
@@ -82,14 +86,15 @@ namespace OnlineShop.DAO
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
+                user.CreatedAt = DateTime.UtcNow;
                 // Tạo role Customer nếu chưa tồn tại
-                if (!await _roleManager.RoleExistsAsync(UserRoles.Customer))
-                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Customer));
+                if (!await _roleManager.RoleExistsAsync(UserRoles.Employee))
+                    await _roleManager.CreateAsync(new IdentityRole(UserRoles.Employee));
 
                 // Gán role Customer cho user
-                if (await _roleManager.RoleExistsAsync(UserRoles.Customer))
+                if (await _roleManager.RoleExistsAsync(UserRoles.Employee))
                 {
-                    await _userManager.AddToRoleAsync(user, UserRoles.Customer);
+                    await _userManager.AddToRoleAsync(user, UserRoles.Employee);
                 }
 
                 return (true, null);
@@ -204,7 +209,7 @@ namespace OnlineShop.DAO
                     }
                     else if (error.Description.Contains("token", StringComparison.OrdinalIgnoreCase))
                     {
-                        errors.Add(string.Empty, "Password reset link is invalid or has expired.");
+                        errors.Add(string.Empty, "Đường dẫn reset mật khẩu không hợp lệ hoặc quá hạn.");
                     }
                     else
                     {

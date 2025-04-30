@@ -13,7 +13,7 @@ namespace OnlineShop.Models
 
         // Navigation Property
         public virtual ICollection<Product> Products { get; set; }
-        public virtual ICollection<AdCategory> AdCategories{ get; set; }
+        public virtual ICollection<AdCategory> AdCategories { get; set; }
 
         public CategoryProduct()
         {

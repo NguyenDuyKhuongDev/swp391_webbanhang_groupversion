@@ -163,5 +163,16 @@ namespace OnlineShop.DAO
                     .ThenInclude(ps => ps.CategorySize)
                 .FirstOrDefaultAsync(p => p.ProductID == productId);
         }
+        public async Task<ProductSize> GetProductSizeAsync(int productId, int categorySizeId)
+        {
+            return await _context.ProductSizes
+                .FirstOrDefaultAsync(ps => ps.ProductID == productId && ps.CategorySizeID == categorySizeId);
+        }
+
+        public async Task UpdateProductSizeAsync(ProductSize productSize)
+        {
+            _context.ProductSizes.Update(productSize);
+            await _context.SaveChangesAsync();
+        }
     }
 }

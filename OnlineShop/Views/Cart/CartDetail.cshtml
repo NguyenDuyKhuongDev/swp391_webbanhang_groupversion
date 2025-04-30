@@ -1,11 +1,12 @@
-﻿@model List<OnlineShop.Models.CartItem>
+﻿@model List<OnlineShop.ViewModel.CartItemViewModel>
 
 @{
     ViewData["Title"] = "Giỏ Hàng";
     decimal total = Model.Sum(item => item.TotalPrice);
 }
 
-<h3>Chi tiết giỏ hàng</h3>
+<h4 style="color: red">Chi tiết giỏ hàng</h4>
+
 
 @if (TempData["Message"] != null)
 {
@@ -70,7 +71,7 @@ else
         </div>
         <div class="d-flex align-items-center">
             <h4 style="margin-right: 20px;" class="mb-0">TỔNG TIỀN: @total.ToString("#,##0")đ</h4>
-            <a href="@Url.Action("Checkout", "Cart")" class="btn btn-primary">THANH TOÁN</a>
+            <a href="@Url.Action("CheckoutConfirmation", "Cart")" class="btn btn-primary">THANH TOÁN</a>
         </div>
     </div>
 }

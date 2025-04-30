@@ -60,11 +60,11 @@ namespace OnlineShop.Controllers
 
             if (!success)
             {
-                ModelState.AddModelError(string.Empty, "Failed to update profile. Please try again.");
+                ModelState.AddModelError(string.Empty, "Cập nhật thông tin thất bại! Vui lòng thử lại.");
                 return View(model);
             }
 
-            TempData["StatusMessage"] = "Profile has been updated successfully!";
+            TempData["StatusMessage"] = "Thông tin được cập nhật thành công!";
             return RedirectToAction(nameof(Index));
         }
 
@@ -88,7 +88,7 @@ namespace OnlineShop.Controllers
             var isCurrentPasswordValid = await _userProfileDAO.CheckCurrentPasswordAsync(userId, model.Password);
             if (!isCurrentPasswordValid)
             {
-                ModelState.AddModelError("Password", "Current password is incorrect.");
+                ModelState.AddModelError("Password", "Mật khẩu hiện tại không chính xác.");
                 return View(model);
             }
 
@@ -104,7 +104,7 @@ namespace OnlineShop.Controllers
                 return View(model);
             }
 
-            TempData["StatusMessage"] = "Your password has been changed successfully!";
+            TempData["StatusMessage"] = "Mật khẩu đã được thay đổi thành công!";
             return RedirectToAction(nameof(ChangePassword));
         }
     }

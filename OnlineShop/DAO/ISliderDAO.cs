@@ -11,3 +11,4 @@ namespace OnlineShop.DAO
         Task DeleteSliderAsync(int id);
     }
 }
+

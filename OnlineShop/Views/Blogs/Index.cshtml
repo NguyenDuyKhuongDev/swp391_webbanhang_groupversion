@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Quản lý Blog";
+    var users = ViewBag.Users as List<ApplicationUser>;
     int totalPages = ViewBag.totalPage;
     int currentPage = ViewBag.currentPage;
     int maxDisplayPages = ViewBag.maxDisplayPages;
@@ -19,6 +20,9 @@
         <h1 class="mt-4">
             <i class="fas fa-pen-fancy text-primary me-2"></i>Quản lý Bài viết
         </h1>
+        <a asp-action="ProductView" asp-controller="Product" class="btn btn-primary">
+            <i class="fas fa-chevron-left me-2"></i>Quay lại
+        </a>
         <a asp-action="Create" class="btn btn-primary">
             <i class="fas fa-plus me-2"></i>Tạo mới
         </a>
@@ -112,12 +116,28 @@
                                         </span>
                                     }
                                 </td>
-                                <td>
-                                    <span class="badge bg-light text-dark">
-                                        <i class="fas fa-user-circle me-1"></i>
-                                        @Html.DisplayFor(modelItem => item.AuthorId)
-                                    </span>
-                                </td>
+                                @{
+                                    var author = users.Where(u => u.Id.Contains(item.AuthorId?? string.Empty)).ToList().FirstOrDefault();
+                                }
+                                @if (author.Email != null)
+                                                {
+                                    <td>
+                                        <span class="badge bg-light text-dark">
+                                            <i class="fas fa-user-circle me-1"></i>
+                                            @author.Email
+                                        </span>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td>
+                                        <span class="badge bg-light text-dark">
+                                            <i class="fas fa-user-circle me-1"></i>
+                                            Ẩn Danh
+                                        </span>
+                                    </td>
+                                }
+
                                 <td>
                                     @if (item.IsPublished)
                                     {
@@ -154,28 +174,35 @@
                                 <td>
                                     <div class="d-flex flex-wrap gap-2">
                                         <!-- Lượt xem -->
-                                        <span class="badge bg-light text-dark" title="Lượt xem">
-                                            <span class="stats-icon-view me-1">
-                                                <i class="fas fa-eye text-primary"></i>
-                                            </span>
-                                            <span class="stats-value fw-bold">@(item.ViewCount ?? 0)</span>
-                                        </span>
+                                        <div class="stat-item view-stat">
+                                            <div class="stat-icon">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M12 5C5.63636 5 1 12 1 12C1 12 5.63636 19 12 19C18.3636 19 23 12 23 12C23 12 18.3636 5 12 5Z" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="#3B82F6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                            </div>
+                                            <div class="stat-value">@(item.ViewCount ?? 0)</div>
+                                        </div>
 
                                         <!-- Lượt thích -->
-                                        <span class="badge bg-light text-dark" title="Lượt thích">
-                                            <span class="stats-icon-like me-1">
-                                                <i class="fas fa-heart text-danger"></i>
-                                            </span>
-                                            <span class="stats-value fw-bold">@(item.LikeCount ?? 0)</span>
-                                        </span>
+                                        <div class="stat-item like-stat">
+                                            <div class="stat-icon">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M12 21.35L10.55 20.03C5.4 15.36 2 12.28 2 8.5C2 5.42 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.09C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.42 22 8.5C22 12.28 18.6 15.36 13.45 20.03L12 21.35Z" fill="#EF4444" stroke="#EF4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                            </div>
+                                            <div class="stat-value">@(item.LikeCount ?? 0)</div>
+                                        </div>
 
                                         <!-- Bình luận -->
-                                        <span class="badge bg-light text-dark" title="Bình luận">
-                                            <span class="stats-icon-comment me-1">
-                                                <i class="fas fa-comment-dots text-info"></i>
-                                            </span>
-                                            <span class="stats-value fw-bold">@(item.CommentCount ?? 0)</span>
-                                        </span>
+                                        <div class="stat-item comment-stat">
+                                            <div class="stat-icon">
+                                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M21 11.5C21 16.1944 17.1944 20 12.5 20C11.4234 20 10.3933 19.7998 9.44526 19.4345L4.55556 21L6.12061 16.5809C3.6698 14.7064 2 11.5 2 7.5C2 2.80558 5.80558 -1 10.5 -1C15.1944 -1 19 2.80558 19 7.5C19 8.77231 18.6696 9.9709 18.0867 11.0189C18.6155 11.6356 19 12.3189 19 13.0613C19 14.2429 18.0474 15.2006 16.8787 15.4849C17.6083 14.5403 18 13.4284 18 12.2449C18 11.0701 17.6138 9.96551 16.8954 9.02362C17.5957 8.07862 18 6.93274 18 5.70492C18 3.67613 16.4339 2 14.5 2C12.5661 2 11 3.67613 11 5.70492C11 6.93274 11.4043 8.07862 12.1046 9.02362C11.3862 9.96551 11 11.0701 11 12.2449C11 13.4284 11.3917 14.5403 12.1213 15.4849C10.9526 15.2006 10 14.2429 10 13.0613C10 12.3189 10.3845 11.6356 10.9133 11.0189C10.3304 9.9709 10 8.77231 10 7.5C10 4.46243 12.4624 2 15.5 2C18.5376 2 21 4.46243 21 7.5V11.5Z" fill="#06B6D4" stroke="#06B6D4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                                </svg>
+                                            </div>
+                                            <div class="stat-value">@(item.CommentCount ?? 0)</div>
+                                        </div>
 
                                         <!-- Lần cập nhật cuối -->
                                         @if (item.LastUpdated.HasValue)
@@ -218,7 +245,7 @@
                                             {
                                                 <li>
                                                     <a class="dropdown-item" asp-action="PublishBlog" asp-route-id="@item.Id">
-                                                     <i class="fas fa-eye me-2 text-success"></i>Xuất bản
+                                                        <i class="fas fa-eye me-2 text-success"></i>Xuất bản
                                                     </a>
                                                 </li>
                                             }
@@ -270,6 +297,81 @@
 
 @section Styles {
     <style>
+        /* Statistics section */
+        .stat-item {
+            display: inline-flex;
+            align-items: center;
+            background-color: #F8FAFC;
+            border-radius: 6px;
+            padding: 6px 10px;
+            margin-right: 8px;
+            transition: all 0.2s ease;
+        }
+
+            .stat-item:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+
+        .stat-icon {
+            display: flex;
+            align-items: center;
+            margin-right: 6px;
+        }
+
+            .stat-icon svg {
+                width: 16px;
+                height: 16px;
+            }
+
+        .stat-value {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #1E293B;
+        }
+
+        /* Specific styles for each stat */
+        .view-stat {
+            border: 1px solid #BFDBFE;
+        }
+
+        .like-stat {
+            border: 1px solid #FECACA;
+        }
+
+        .comment-stat {
+            border: 1px solid #A5F3FC;
+        }
+
+        /* Tooltip for better UX */
+        .stat-item {
+            position: relative;
+        }
+
+            .stat-item::after {
+                content: attr(title);
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                background-color: #1E293B;
+                color: white;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 0.75rem;
+                white-space: nowrap;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.2s ease;
+                z-index: 10;
+            }
+
+            .stat-item:hover::after {
+                opacity: 1;
+                visibility: visible;
+                bottom: calc(100% + 5px);
+            }
+
         .card {
             border: none;
             box-shadow: 0 0.15rem 1.75rem 0 rgba(33, 40, 50, 0.15);

@@ -3,11 +3,19 @@
 
 @{
     ViewData["Title"] = "Thêm Sản Phẩm";
-    Layout = "_Layout";
+    Layout = "~/Views/Shared/_LayoutEmployee.cshtml";
 }
 
 @section Styles {
-    <link rel="stylesheet" href="~/css/productAdd.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/product-add.css" asp-append-version="true" />
+    <!-- Thêm kiểu inline để đảm bảo dấu sao hiển thị nếu CSS không tải đúng -->
+    <style>
+        .required-label::after {
+            content: " *";
+            color: red;
+            font-size: 0.9rem;
+        }
+    </style>
 }
 
 <div class="container mt-4">
@@ -23,14 +31,14 @@
     <form asp-controller="Product" asp-action="HandleAddProduct" method="post" enctype="multipart/form-data">
         <!-- Tên Sản Phẩm -->
         <div class="form-group">
-            <label for="ProductName">Tên Sản Phẩm</label>
+            <label for="ProductName" class="required-label">Tên Sản Phẩm</label>
             <input asp-for="ProductName" class="form-control" id="ProductName" required />
             <span asp-validation-for="ProductName" class="text-danger"></span>
         </div>
 
         <!-- Danh Mục -->
         <div class="form-group">
-            <label for="CategoryProductId">Danh Mục</label>
+            <label for="CategoryProductId" class="required-label">Danh Mục</label>
             <select asp-for="CategoryProductId" class="form-control" required>
                 <option value="">-- Chọn Danh Mục --</option>
                 @if (ViewBag.Categories != null)
@@ -50,22 +58,21 @@
 
         <!-- Mô Tả -->
         <div class="form-group">
-            <label for="ProductDescription">Mô Tả</label>
+            <label for="ProductDescription" class="required-label">Mô Tả</label>
             <textarea asp-for="ProductDescription" class="form-control" id="ProductDescription" rows="3" required></textarea>
             <span asp-validation-for="ProductDescription" class="text-danger"></span>
         </div>
 
         <!-- Giá Bán -->
         <div class="form-group">
-            <label for="ProductPrice">Giá Bán (VNĐ)</label>
-            <input asp-for="ProductPrice" type="number"  class="form-control" id="ProductPrice" required />
+            <label for="ProductPrice" class="required-label">Giá Bán (VNĐ)</label>
+            <input asp-for="ProductPrice" type="number" class="form-control" id="ProductPrice" required />
             <span asp-validation-for="ProductPrice" class="text-danger"></span>
         </div>
 
-
         <!-- Kích Thước và Số Lượng Theo Kích Thước -->
         <div class="form-group">
-            <label>Kích Thước và Số Lượng</label>
+            <label class="required-label">Kích Thước và Số Lượng</label>
             <div class="d-flex flex-wrap">
                 @foreach (var size in ViewBag.Sizes)
                 {
@@ -84,12 +91,10 @@
 
         <!-- Upload Hình Ảnh -->
         <div class="form-group">
-            <label for="ProductImageFile">Tải Lên Hình Ảnh</label>
+            <label for="ProductImageFile" class="required-label">Tải Lên Hình Ảnh</label>
             <input type="file" name="ProductImageFile" class="form-control-file" accept=".jpg,.jpeg,.png,.gif,.webp" required />
-        </div>
             <span class="text-danger" id="file-error"></span>
-
-
+        </div>
 
         <!-- Nút Submit -->
         <div class="form-group text-center">
@@ -141,13 +146,13 @@
         });
 
         // Client-side validation cho kích thước
-                document.querySelector('form').addEventListener('submit', function (e) {
+        document.querySelector('form').addEventListener('submit', function (e) {
             const selectedSizes = document.querySelectorAll('input[name="SelectedSizes"]:checked');
             const sizeError = document.getElementById('size-error');
             const quantityError = document.getElementById('quantity-error');
             const fileError = document.getElementById('file-error');
             const productImageFile = document.querySelector('input[name="ProductImageFile"]').files.length;
-   
+
             let isValid = true;
 
             // Kiểm tra kích thước

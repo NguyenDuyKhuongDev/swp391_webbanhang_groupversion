@@ -39,27 +39,27 @@
                 </div>
                 <div class="card-body">
                     <div class="form-group">
-                        <label asp-for="FullName" class="control-label required">Full Name</label>
-                        <input asp-for="FullName" class="form-control" placeholder="Enter your full name">
+                        <label asp-for="FullName" class="control-label required"></label>
+                        <input asp-for="FullName" class="form-control" placeholder="Nhập họ và tên của bạn">
                         <span asp-validation-for="FullName" class="text-danger"></span>
                     </div>
 
                     <div class="form-group mt-3">
-                        <label asp-for="PhoneNumber" class="control-label required">Phone Number</label>
-                        <input asp-for="PhoneNumber" class="form-control" placeholder="Enter your phone number">
+                        <label asp-for="PhoneNumber" class="control-label required"></label>
+                        <input asp-for="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại của bạn">
                         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                     </div>
 
                     <div class="form-group mt-3">
-                        <label asp-for="Gender">Gender</label>
+                        <label asp-for="Gender"></label>
                         <div class="gender-options">
                             <div class="gender-option">
                                 <input type="radio" id="male" name="Gender" value="true" @(Model?.Gender == true ? "checked" : "")>
-                                <label for="male">Male</label>
+                                <label for="male">Nam</label>
                             </div>
                             <div class="gender-option">
                                 <input type="radio" id="female" name="Gender" value="false" @(Model?.Gender == false ? "checked" : "")>
-                                <label for="female">Female</label>
+                                <label for="female">Nữ</label>
                             </div>
                         </div>
                         <span asp-validation-for="Gender" class="text-danger"></span>
@@ -80,13 +80,13 @@
                         </div>
                         <div class="col-md-9">
                             <div class="form-group">
-                                <label for="avatarUpload">Choose Image</label>
+                                <label for="avatarUpload">Chọn hình ảnh</label>
                                 <input type="file" id="avatarUpload" class="form-control" accept="image/*" />
-                                <small class="form-text text-muted">Select an image file (max 1MB). Optional.</small>
+                                <small class="form-text text-muted">Chọn một tệp hình ảnh (tối đa 1MB). Không bắt buộc.</small>
                             </div>
                             <input type="hidden" asp-for="Avatar" id="avatarBase64" />
                             <div class="mt-2">
-                                <button type="button" id="removeAvatar" class="btn btn-sm btn-outline-danger">Remove Avatar</button>
+                                <button type="button" id="removeAvatar" class="btn btn-sm btn-outline-danger">Xóa Avatar</button>
                             </div>
                         </div>
                     </div>
@@ -95,15 +95,15 @@
 
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5>Address</h5>
+                    <h5>Địa chỉ</h5>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label asp-for="Province" class="control-label required">Province/City</label>
+                                <label asp-for="Province" class="control-label required"></label>
                                 <select id="tinh1" class="form-select">
-                                    <option value="0">Province/City</option>
+                                    <option value="0">Chọn Tỉnh/Thành phố</option>
                                 </select>
                                 <input type="hidden" asp-for="Province" id="currentProvinceName">
                                 <span asp-validation-for="Province" class="text-danger"></span>
@@ -111,9 +111,9 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label asp-for="District" class="control-label required">District</label>
+                                <label asp-for="District" class="control-label required"></label>
                                 <select id="quan1" class="form-select">
-                                    <option value="0">District</option>
+                                    <option value="0">Chọn Quận/Huyện</option>
                                 </select>
                                 <input type="hidden" asp-for="District" id="currentDistrictName">
                                 <span asp-validation-for="District" class="text-danger"></span>
@@ -121,9 +121,9 @@
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label asp-for="Ward" class="control-label required">Ward/Commune</label>
+                                <label asp-for="Ward" class="control-label required"></label>
                                 <select id="phuong1" class="form-select">
-                                    <option value="0">Ward/Commune</option>
+                                    <option value="0">Chọn Phường/Xã</option>
                                 </select>
                                 <input type="hidden" asp-for="Ward" id="currentWardName">
                                 <span asp-validation-for="Ward" class="text-danger"></span>
@@ -132,17 +132,17 @@
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="AddressDetail" class="control-label required">Detailed Address</label>
+                        <label asp-for="AddressDetail" class="control-label required"></label>
                         <textarea asp-for="AddressDetail" class="form-control" rows="2"
-                                  placeholder="Enter house number, street, building, ..."></textarea>
+                                  placeholder="Nhập số nhà, tên đường, tòa nhà, ..."></textarea>
                         <span asp-validation-for="AddressDetail" class="text-danger"></span>
                     </div>
                 </div>
             </div>
 
             <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary">Update Information</button>
-                <a asp-action="Index" class="btn btn-outline-secondary ms-2">Back</a>
+                <button type="submit" class="btn btn-primary">Cập nhật thông tin</button>
+                <a asp-action="Index" class="btn btn-outline-secondary ms-2">Quay lại</a>
             </div>
         </form>
     </div>
@@ -151,7 +151,7 @@
 @section Styles {
     <link rel="stylesheet" href="~/css/profile.css" />
 }
-    
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script src="~/js/addressSelection.js" asp-append-version="true"></script>

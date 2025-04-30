@@ -1,6 +1,18 @@
-﻿@model OnlineShop.Controllers.ProductListViewModel
+﻿@model OnlineShop.ViewModel.ProductListViewModel
 @{
     ViewData["Title"] = "Trang Chủ";
+    // if (User.IsInRole(UserRoles.Customer))
+    // {
+    //     Layout = "~/Views/Shared/_Layout.cshtml";
+    // }
+    // else if (User.IsInRole("Employee"))
+    // {
+    //     Layout = "~/Views/Shared/_LayoutEmployee.cshtml";
+    // }
+    // else
+    // {
+    //    Layout = "~/Views/Shared/_Layout.cshtml"; //Layout mặc định nếu không đăng nhập
+    // }
 }
 
 <link rel="stylesheet" href="~/css/Home.css" />

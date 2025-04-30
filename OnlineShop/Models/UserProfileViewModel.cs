@@ -6,40 +6,39 @@ namespace OnlineShop.Models
     {
         public string? Id { get; set; }
 
-        [Required(ErrorMessage = "Full name is required")]
-        [Display(Name = "Full Name")]
+        [Required(ErrorMessage = "Họ và tên là bắt buộc")]
+        [Display(Name = "Họ và tên")]
         public string? FullName { get; set; }
 
         [Display(Name = "Email")]
         [EmailAddress]
         public string? Email { get; set; }
 
-        [Required(ErrorMessage = "Phone number is required")]
-        [Display(Name = "Phone Number")]
+        [Required(ErrorMessage = "Số điện thoại là bắt buộc")]
+        [Display(Name = "Phone")]
         [Phone]
         public string? PhoneNumber { get; set; }
 
-        [Display(Name = "Gender")]
+        [Display(Name = "Giới tính")]
         public bool? Gender { get; set; }
         public int? AddressId { get; set; }
 
-        [Required(ErrorMessage = "Province/City is required")]
-        [Display(Name = "Province/City")]
+        [Required(ErrorMessage = "Tỉnh/Thành phố là bắt buộc")]
+        [Display(Name = "Tỉnh/Thành phố")]
         public string? Province { get; set; }
 
-        [Required(ErrorMessage = "District is required")]
-        [Display(Name = "District")]
+        [Required(ErrorMessage = "Quận/Huyện là bắt buộc")]
+        [Display(Name = "Quận/Huyện")]
         public string? District { get; set; }
 
-        [Required(ErrorMessage = "Ward/Commune is required")]
-        [Display(Name = "Ward/Commune")]
+        [Required(ErrorMessage = "Phường/Xã là bắt buộc")]
+        [Display(Name = "Phường/Xã")]
         public string? Ward { get; set; }
 
-        [Required(ErrorMessage = "Detailed address is required")]
-        [Display(Name = "Detailed Address")]
+        [Required(ErrorMessage = "Địa chỉ chi tiết là bắt buộc")]
+        [Display(Name = "Địa chỉ chi tiết")]
         public string? AddressDetail { get; set; }
 
         public string? Avatar { get; set; }
-
     }
 }

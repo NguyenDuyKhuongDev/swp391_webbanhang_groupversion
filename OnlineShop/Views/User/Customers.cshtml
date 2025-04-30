@@ -1,0 +1,347 @@
+﻿@model PagingList<ApplicationUser>
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Quản lý khách hàng";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <!-- Thông báo -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <!-- Tiêu đề và breadcrumb -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Quản lý khách hàng</h2>
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/Admin">Trang chủ</a></li>
+            <li class="breadcrumb-item active">Khách hàng</li>
+        </ol>
+    </div>
+
+    <!-- Bộ lọc và tìm kiếm -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Bộ lọc tìm kiếm</h6>
+        </div>
+        <div class="card-body">
+            <form asp-action="Customers" method="get">
+                <div class="row align-items-end">
+                    <div class="col-md-4 mb-3">
+                        <label for="searchTerm" class="form-label">Tìm kiếm</label>
+                        <div class="input-group">
+                            <input type="text" id="searchTerm" name="searchTerm" class="form-control"
+                                   placeholder="Tên, email hoặc SĐT"
+                                   value="@ViewBag.CurrentFilter" />
+                            <button class="btn btn-primary" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="status" class="form-label">Trạng thái</label>
+                        @Html.DropDownList(
+                                 "status",
+                                 (IEnumerable<SelectListItem>)ViewBag.StatusList,
+                                 new
+                                 {
+                                     @class = "form-select",
+                                     onchange = "this.form.submit()"
+                                 })
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="dateRange" class="form-label">Thời gian đăng ký</label>
+                        @Html.DropDownList(
+                                 "dateRange",
+                                 (IEnumerable<SelectListItem>)ViewBag.DateRangeList,
+                                 new
+                                 {
+                                     @class = "form-select",
+                                     onchange = "this.form.submit()"
+                                 })
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <a href="@Url.Action("Customers")" class="btn btn-outline-secondary w-100">
+                            <i class="bi bi-arrow-counterclockwise"></i> Đặt lại
+                        </a>
+                    </div>
+                </div>
+                <input type="hidden" name="sortOrder" value="@ViewBag.CurrentSort" />
+                <input type="hidden" name="page" value="1" />
+            </form>
+        </div>
+    </div>
+
+    <!-- Bảng dữ liệu -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Danh sách khách hàng</h6>
+            <span class="badge bg-primary">Tổng: @Model.TotalRecords</span>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover w-100">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>
+                                <a asp-action="Customers"
+                                   asp-route-sortOrder="@ViewBag.NameSortParam"
+                                   asp-route-searchTerm="@ViewBag.CurrentFilter"
+                                   asp-route-status="@ViewBag.CurrentStatus"
+                                   asp-route-dateRange="@ViewBag.CurrentDateRange">
+                                    Họ và tên
+                                    @if (ViewBag.CurrentSort == "name_asc")
+                                    {
+                                        <i class="bi bi-sort-alpha-down"></i>
+                                    }
+                                    else if (ViewBag.CurrentSort == "name_desc")
+                                    {
+                                        <i class="bi bi-sort-alpha-up"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th>Email</th>
+                            <th>Số điện thoại</th>
+                            <th>Trạng thái</th>
+                            <th>
+                                <a asp-action="Customers"
+                                   asp-route-sortOrder="@ViewBag.DateSortParam"
+                                   asp-route-searchTerm="@ViewBag.CurrentFilter"
+                                   asp-route-status="@ViewBag.CurrentStatus"
+                                   asp-route-dateRange="@ViewBag.CurrentDateRange">
+                                    Ngày đăng ký
+                                    @if (ViewBag.CurrentSort == "date_asc")
+                                    {
+                                        <i class="bi bi-sort-numeric-down"></i>
+                                    }
+                                    else if (ViewBag.CurrentSort == "date_desc")
+                                    {
+                                        <i class="bi bi-sort-numeric-up"></i>
+                                    }
+                                </a>
+                            </th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    Không tìm thấy khách hàng nào phù hợp
+                                </td>
+                            </tr>
+                        }
+                        else
+                        {
+                            var start = (Model.PageIndex - 1) * Model.PageSize;
+                            foreach (var user in Model)
+                            {
+                                <tr>
+                                    <td>@(++start)</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-sm me-3">
+                                                <img src="@(string.IsNullOrEmpty(user.Avatar)
+                                                            ? "/images/default-avatar.jpg"
+                                                            : user.Avatar)"
+                                                     class="avatar-img rounded-circle" alt="Avatar" />
+                                            </div>
+                                            <h6 class="mb-0">
+                                                @(string.IsNullOrEmpty(user.FullName)
+                                                    ? "Chưa cập nhật"
+                                                    : user.FullName)
+                                            </h6>
+                                        </div>
+                                    </td>
+                                    <td>@user.Email</td>
+                                    <td>@(user.PhoneNumber ?? "Chưa cập nhật")</td>
+                                    <td>
+                                        @if (user.LockoutEnd > DateTimeOffset.UtcNow)
+                                        {
+                                            <span class="badge rounded-pill bg-danger">Bị khóa</span>
+                                        }
+                                        else if (user.EmailConfirmed)
+                                        {
+                                            <span class="badge rounded-pill bg-success">Đã xác thực</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill bg-warning text-dark">Chưa xác thực</span>
+                                        }
+                                    </td>
+                                    <td>@user.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        @if (user.LockoutEnd > DateTimeOffset.UtcNow)
+                                        {
+                                            <a asp-action="UnlockAccount" asp-route-id="@user.Id"
+                                               class="btn btn-sm btn-success confirm-action"
+                                               data-bs-toggle="tooltip"
+                                               title="Mở khóa tài khoản"
+                                               data-message="Bạn có chắc chắn muốn mở khóa?">
+                                                <i class="bi bi-unlock-fill"></i> Mở khóa
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="LockAccount" asp-route-id="@user.Id"
+                                               class="btn btn-sm btn-danger confirm-action"
+                                               data-bs-toggle="tooltip"
+                                               title="Khóa tài khoản"
+                                               data-message="Bạn có chắc chắn muốn khóa?">
+                                                <i class="bi bi-lock-fill"></i> Khóa
+                                            </a>
+                                        }
+                                        @if (!user.EmailConfirmed)
+                                        {
+                                            <a asp-action="SendVerificationEmail" asp-route-id="@user.Id"
+                                               class="btn btn-sm btn-info ms-1 confirm-action"
+                                               data-bs-toggle="tooltip"
+                                               title="Gửi email xác thực"
+                                               data-message="Gửi email xác thực cho người dùng này?">
+                                                <i class="bi bi-envelope-check"></i> Gửi xác thực
+                                            </a>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Phân trang -->
+            @if (Model.TotalPages > 1)
+            {
+                <div class="d-flex justify-content-between align-items-center mt-3">
+                    <div>
+                        <span>
+                            Hiển thị @((Model.PageIndex - 1) * Model.PageSize + 1)
+                            đến @Math.Min(Model.PageIndex * Model.PageSize, Model.TotalRecords)
+                            trong tổng số @Model.TotalRecords
+                        </span>
+                    </div>
+                    <nav>
+                        <ul class="pagination">
+                            <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                                <a class="page-link" asp-action="Customers" asp-route-page="1"
+                                   asp-route-searchTerm="@ViewBag.CurrentFilter"
+                                   asp-route-status="@ViewBag.CurrentStatus"
+                                   asp-route-dateRange="@ViewBag.CurrentDateRange"
+                                   asp-route-sortOrder="@ViewBag.CurrentSort"
+                                   aria-label="First">&laquo;&laquo;</a>
+                            </li>
+                            <li class="page-item @(Model.PageIndex == 1 ? "disabled" : "")">
+                                <a class="page-link" asp-action="Customers"
+                                   asp-route-page="@(Model.PageIndex - 1)"
+                                   asp-route-searchTerm="@ViewBag.CurrentFilter"
+                                   asp-route-status="@ViewBag.CurrentStatus"
+                                   asp-route-dateRange="@ViewBag.CurrentDateRange"
+                                   asp-route-sortOrder="@ViewBag.CurrentSort"
+                                   aria-label="Previous">&laquo;</a>
+                            </li>
+
+                            @{
+                                int startPage = Math.Max(1, Model.PageIndex - 2);
+                                int endPage = Math.Min(Model.TotalPages, startPage + 4);
+                                if (endPage - startPage < 4 && startPage > 1)
+                                {
+                                    startPage = Math.Max(1, endPage - 4);
+                                }
+                            }
+
+                            @for (int i = startPage; i <= endPage; i++)
+                            {
+                                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                                    <a class="page-link" asp-action="Customers" asp-route-page="@i"
+                                       asp-route-searchTerm="@ViewBag.CurrentFilter"
+                                       asp-route-status="@ViewBag.CurrentStatus"
+                                       asp-route-dateRange="@ViewBag.CurrentDateRange"
+                                       asp-route-sortOrder="@ViewBag.CurrentSort">
+                                        @i
+                                    </a>
+                                </li>
+                            }
+
+                            <li class="page-item @(Model.PageIndex == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link" asp-action="Customers"
+                                   asp-route-page="@(Model.PageIndex + 1)"
+                                   asp-route-searchTerm="@ViewBag.CurrentFilter"
+                                   asp-route-status="@ViewBag.CurrentStatus"
+                                   asp-route-dateRange="@ViewBag.CurrentDateRange"
+                                   asp-route-sortOrder="@ViewBag.CurrentSort"
+                                   aria-label="Next">&raquo;</a>
+                            </li>
+                            <li class="page-item @(Model.PageIndex == Model.TotalPages ? "disabled" : "")">
+                                <a class="page-link" asp-action="Customers"
+                                   asp-route-page="@Model.TotalPages"
+                                   asp-route-searchTerm="@ViewBag.CurrentFilter"
+                                   asp-route-status="@ViewBag.CurrentStatus"
+                                   asp-route-dateRange="@ViewBag.CurrentDateRange"
+                                   asp-route-sortOrder="@ViewBag.CurrentSort"
+                                   aria-label="Last">&raquo;&raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Confirm dialogs
+            document.querySelectorAll('.confirm-action').forEach(btn => {
+                btn.addEventListener('click', e => {
+                    e.preventDefault();
+                    if (confirm(btn.getAttribute('data-message'))) {
+                        location.href = btn.getAttribute('href');
+                    }
+                });
+            });
+            // Bootstrap tooltips
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+                new bootstrap.Tooltip(el);
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .avatar-sm {
+            width: 40px;
+            height: 40px;
+        }
+
+        .avatar-img {
+            object-fit: cover;
+            width: 100%;
+            height: 100%;
+        }
+
+        .badge.rounded-pill {
+            padding: 0.35em 0.65em;
+        }
+
+        th a {
+            color: inherit;
+            text-decoration: none;
+        }
+    </style>
+}

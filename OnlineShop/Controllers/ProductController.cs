@@ -3,7 +3,6 @@ using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.DAO;
 using OnlineShop.Models;
-using OnlineShop.Services;
 using System.Net;
 
 namespace OnlineShop.Controllers
